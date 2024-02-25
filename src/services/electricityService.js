@@ -1,6 +1,6 @@
-import axios from "axios";
-import dotenv from "dotenv";
-import generateAccessToken from "../Utils/generateToken.js";
+const dotenv =require("dotenv")
+const axios =require("axios");
+const generateAccessToken =require("../Utils/generateToken.js");
 
 dotenv.config();
 
@@ -71,4 +71,4 @@ const electricityPaymentService = async(req,res,response,amount,meterNumber,trxI
       }
 };
 
-export  default electricityPaymentService
+module.exports= electricityPaymentService

@@ -1,9 +1,9 @@
-import  { Router } from "express";
-import authRoute from "./auth.routes.js";
-import accountsRoute from "./accounts.routes.js";
-import logsRoute from "./logs.routes.js";
-import paymentRoute from "./payment.routes.js";
-const router=Router();
+const express =require("express")
+const  authRoute =require("./auth.routes.js");
+const  accountsRoute =require("./accounts.routes.js");
+const  logsRoute =require( "./logs.routes.js");
+const paymentRoute =require("./payment.routes.js");
+const router=express.Router();
 
 //authentication
  router.use('/api/v1/authentication',authRoute);
@@ -16,4 +16,4 @@ router.use('/api/v1/payment-service',paymentRoute);
 router.use('/api/v1/transactions',logsRoute);
 
 
-export default router;
+module.exports= router

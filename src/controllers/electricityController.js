@@ -1,7 +1,7 @@
-import dotenv from "dotenv";
-import axios from "axios";
-import generateAccessToken from "../Utils/generateToken.js";
-import electricityPaymentService from "../services/electricityService.js";
+const dotenv =require("dotenv")
+const axios =require("axios");
+const generateAccessToken =require("../Utils/generateToken.js");
+const electricityPaymentService =require("../services/electricityService.js");
 
 dotenv.config();
 
@@ -157,4 +157,4 @@ class electricityController{
   }
    
 }
-export default electricityController;
+module.exports= electricityController;

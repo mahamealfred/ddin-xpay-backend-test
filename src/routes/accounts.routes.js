@@ -1,9 +1,9 @@
-import  { Router } from "express";
-import accountsController from "../controllers/accountsController.js";
+const express =require("express")
+const  accountsController =require("../controllers/accountsController.js");
 
 
-const router=Router();
+const router=express.Router();
 
 router.get('/balance',accountsController.getAccountsBalance);
 
-export default router
+module.exports=router

@@ -1,9 +1,9 @@
-import  { Router } from "express";
-import rraController from "../controllers/rraController.js";
-import electricityController from "../controllers/electricityController.js";
+const express =require("express")
+const rraController =require("../controllers/rraController.js");
+const electricityController =require("../controllers/electricityController.js");
 
 
-const router=Router();
+const router=express.Router();
 //RRA Payament
 router.post('/rra/validate-vend',rraController.ValidateRRAId);
 router.post('/rra/payment',rraController.rraPayment);
@@ -13,4 +13,4 @@ router.post('/electricity/validate-vend',electricityController.ValidateCustomerM
 router.post('/electricity/payment',electricityController.electrictyPayment);
 
 
-export default router
+module.exports= router

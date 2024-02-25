@@ -1,5 +1,5 @@
-import axios from "axios";
-import dotenv from "dotenv";
+const dotenv =require("dotenv")
+const axios =require("axios");
 
 
 dotenv.config();
@@ -39,4 +39,4 @@ const generateAccessToken = async(req,res)=>{
       return  accesstoken
 };
 
-export  default generateAccessToken
+module.exports= generateAccessToken

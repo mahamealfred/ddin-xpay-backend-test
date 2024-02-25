@@ -1,5 +1,5 @@
-import dotenv from "dotenv";
-import axios from "axios";
+const dotenv =require("dotenv")
+const axios =require("axios");
 dotenv.config();
 class logsController{
     static async getLogs(req, res) {
@@ -57,4 +57,4 @@ class logsController{
     }
    
 }
-export default logsController;
+module.exports= logsController;

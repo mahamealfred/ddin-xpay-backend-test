@@ -1,5 +1,5 @@
-import dotenv from "dotenv";
-import axios from "axios";
+const dotenv =require("dotenv")
+const axios =require("axios");
 dotenv.config();
 class accountsController{
     static async getAccountsBalance(req, res) {
@@ -66,4 +66,4 @@ class accountsController{
     }
    
 }
-export default accountsController;
+module.exports= accountsController;

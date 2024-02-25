@@ -1,9 +1,9 @@
-import  { Router } from "express";
-import logsController from "../controllers/logsController.js";
+const express =require("express")
+const logsController =require("../controllers/logsController.js");
 
 
-const router=Router();
+const router=express.Router();
 
 router.get('/logs',logsController.getLogs);
 
-export default router
+module.exports= router

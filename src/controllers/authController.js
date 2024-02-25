@@ -1,5 +1,5 @@
-import dotenv from "dotenv";
-import axios from "axios";
+const dotenv =require("dotenv")
+const axios =require("axios");
 dotenv.config();
 class authController{
     static async signIn(req, res) {
@@ -56,4 +56,4 @@ class authController{
     }
    
 }
-export default authController;
+module.exports=authController;

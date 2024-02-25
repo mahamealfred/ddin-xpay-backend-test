@@ -1,6 +1,6 @@
-import dotenv from "dotenv";
-import axios from "axios";
-import generateAccessToken from "../Utils/generateToken.js";
+const dotenv =require("dotenv")
+const axios =require("axios");
+const generateAccessToken =require("../Utils/generateToken.js");
 dotenv.config();
 class rraController{
     static async rraPayment(req, res) {
@@ -144,4 +144,4 @@ class rraController{
   }
    
 }
-export default rraController;
+module.exports= rraController;
