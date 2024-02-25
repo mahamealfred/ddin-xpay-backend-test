@@ -1,21 +1,28 @@
 import dotenv from "dotenv";
 import axios from "axios";
 import generateAccessToken from "../Utils/generateToken.js";
-
-
-
+import electricityPaymentService from "../services/electricityService.js";
 
 dotenv.config();
+
+
 class electricityController{
     static async electrictyPayment(req, res) {
-        const {amount}=req.body
+        const {amount,meterNumber,trxId}=req.body;
         const authheader = req.headers.authorization;
         let data = JSON.stringify({
             "toMemberId": "34",
             "amount": `${amount}`,
             "transferTypeId": "52",
             "currencySymbol": "Rwf",
-            "description": "Electricity Payment"
+            "description": "Electricity Payment",
+            "customValues": [
+              {
+                "internalName": "meterNumber",
+                "fieldId": "117",
+                "value": `${meterNumber}`
+              }
+            ]
           });
           
           let config = {
@@ -32,19 +39,10 @@ class electricityController{
         try{
             const response =await axios.request(config)
             if(response.status===200){
-                return res.status(200).json({
-                    responseCode: 200,
-                    communicationStatus:"SUCCESS",
-                    responseDescription: "Payment has been processed! Details of transactions are included below",
-                    data:response.data
-                  });  
+                //call electricity service payment
+               await electricityPaymentService(req,res,response,amount,meterNumber,trxId)
             }
-                return res.status(500).json({
-                    responseCode: 500,
-                    communicationStatus:"FAILED",
-                    responseDescription: "Something went wrong, Please try again later.",
-                  });
-            
+                
         } catch (error) {
             if(error.response.status===401){
                 return res.status(401).json({
@@ -111,7 +109,20 @@ class electricityController{
                   responseCode: 200,
                   communicationStatus:"SUCCESS",
                   responseDescription: "Customer Detail",
-                  data:response.data.data
+                  data:{
+                    pdtId: response.data.data.pdtId,
+                    pdtName: response.data.data.pdtName,
+                    pdtStatusId: response.data.data.pdtStatusId,
+                    verticalId: response.data.data.verticalId,
+                    customerAccountNumber: response.data.data.customerAccountNumber,
+                    svcProviderName:response.data.data. svcProviderName,
+                    vendUnitId: response.data.data.vendUnitId,
+                    vendMin:response.data.data.vendMin,
+                    vendMax: response.data.data.vendMax,
+                    trxResult: response.data.data.trxResult,
+                    trxId: response.data.data.trxId,
+                    availTrxBalance: response.data.data.availTrxBalance
+                  }
                 });  
           }
               return res.status(500).json({

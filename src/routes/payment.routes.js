@@ -5,9 +5,12 @@ import electricityController from "../controllers/electricityController.js";
 
 const router=Router();
 //RRA Payament
+router.post('/rra/validate-vend',rraController.ValidateRRAId);
 router.post('/rra/payment',rraController.rraPayment);
 
 //ELECTRICITY Payament
 router.post('/electricity/validate-vend',electricityController.ValidateCustomerMeterNumber);
 router.post('/electricity/payment',electricityController.electrictyPayment);
+
+
 export default router
