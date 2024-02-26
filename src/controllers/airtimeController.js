@@ -1,28 +1,22 @@
 const dotenv =require("dotenv")
 const axios =require("axios");
 const generateAccessToken =require("../Utils/generateToken.js");
-const electricityPaymentService =require("../services/electricityService.js");
+const airtimePaymentService =require("../services/airtimeService.js");
 
 dotenv.config();
 
 
-class electricityController{
-    static async electrictyPayment(req, res) {
-        const {amount,meterNumber,trxId,transferTypeId,toMemberId}=req.body;
+class airtimeController{
+    static async airtimePayment(req, res) {
+        const {amount,trxId,transferTypeId,toMemberId,phoneNumber}=req.body;
         const authheader = req.headers.authorization;
         let data = JSON.stringify({
-            "toMemberId": `${toMemberId}`,
-            "amount": `${amount}`,
-            "transferTypeId": `${transferTypeId}`,
-            "currencySymbol": "Rwf",
-            "description": "Electricity Payment",
-            "customValues": [
-              {
-                "internalName": "meterNumber",
-                "fieldId": "117",
-                "value": `${meterNumber}`
-              }
-            ]
+             "toMemberId":`${toMemberId}`,
+             "amount": `${amount}`,
+             "transferTypeId": `${transferTypeId}`,
+             "currencySymbol": "Rwf",
+             "description": "Airtime Payment"
+            
           });
           
           let config = {
@@ -40,10 +34,16 @@ class electricityController{
             const response =await axios.request(config)
             if(response.status===200){
                 //call electricity service payment
-               await electricityPaymentService(req,res,response,amount,meterNumber,trxId)
+               await airtimePaymentService(req,res,response,amount,phoneNumber,trxId)
+            //   return res.status(200).json({
+            //     responseCode: 200,
+            //     communicationStatus:"SUCCESS",
+            //     responseDescription: response.data
+            //  }); 
             }
                 
         } catch (error) {
+            console.log("error;;",error)
             if(error.response.status===401){
                 return res.status(401).json({
                     responseCode: 401,
@@ -73,7 +73,7 @@ class electricityController{
         }
           
     }
-    static async ValidateCustomerMeterNumber(req, res) {
+    static async ValidatePhoneNumber(req, res) {
       const accessToken = await generateAccessToken();
       const {customerAccountNumber}=req.body
 
@@ -86,7 +86,7 @@ class electricityController{
       }
       // console.log("accesst:",accessToken.replace(/['"]+/g, ''))
       let data = JSON.stringify({
-        verticalId: "electricity",
+        verticalId: "airtime",
         customerAccountNumber: customerAccountNumber
       }
       );
@@ -109,6 +109,7 @@ class electricityController{
                   responseCode: 200,
                   communicationStatus:"SUCCESS",
                   responseDescription: "Customer Detail",
+                  //data:response.data
                   data:{
                     pdtId: response.data.data.pdtId,
                     pdtName: response.data.data.pdtName,
@@ -147,6 +148,13 @@ class electricityController{
                 responseDescription: error.response.data.msg
               }); 
         }
+        if(error.response.status===400){
+            return res.status(400).json({
+                responseCode: 400,
+                communicationStatus:"FAILED",
+                responseDescription: error.response.data.msg
+              }); 
+        }
           return res.status(500).json({
               responseCodeCode: 500,
               communicationStatus:"FAILED",
@@ -157,4 +165,4 @@ class electricityController{
   }
    
 }
-module.exports= electricityController;
+module.exports= airtimeController;
