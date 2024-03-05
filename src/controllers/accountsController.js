@@ -57,7 +57,7 @@ class accountsController{
                   }); 
             }
             return res.status(500).json({
-                responseCodeCode: 500,
+                responseCode: 500,
                 communicationStatus:"FAILED",
                 error: error.message,
               });  

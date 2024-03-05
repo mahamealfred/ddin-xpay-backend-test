@@ -1,28 +1,28 @@
 const dotenv =require("dotenv")
 const axios =require("axios");
 const generateAccessToken =require("../Utils/generateToken.js");
-const airtimePaymentService =require("../services/airtimeService.js");
+const bulkSmsPaymentService = require("../services/bulkSmsService.js");
+
 
 dotenv.config();
 
 
-class airtimeController{
-    static async airtimePayment(req, res) {
-        const {amount,trxId,transferTypeId,toMemberId,phoneNumber}=req.body;
+class electricityController{
+    static async bulkSMSPayment(req, res) {
+        const {amount,recipients,transferTypeId,toMemberId,description,senderId,smsMessage,currencySymbol}=req.body;
         const authheader = req.headers.authorization;
         let data = JSON.stringify({
-             "toMemberId":`${toMemberId}`,
-             "amount": `${amount}`,
-             "transferTypeId": `${transferTypeId}`,
-             "currencySymbol": "Rwf",
-             "description": "Airtime Payment"
-            
+            "toMemberId": `${toMemberId}`,
+            "amount": `${amount}`,
+            "transferTypeId": `${transferTypeId}`,
+            "currencySymbol": currencySymbol,
+            "description": description
           });
           
           let config = {
             method: 'post',
             maxBodyLength: Infinity,
-            url: process.env.CORE_TEST_URL+'/coretest/rest/payments/confirmMemberPayment',
+            url: 'https://core.ddin.rw/core/rest/payments/confirmMemberPayment',
             headers: { 
               'Content-Type': 'application/json', 
               'Authorization': `${authheader}`
@@ -34,16 +34,11 @@ class airtimeController{
             const response =await axios.request(config)
             if(response.status===200){
                 //call electricity service payment
-               await airtimePaymentService(req,res,response,amount,phoneNumber,trxId)
-            //   return res.status(200).json({
-            //     responseCode: 200,
-            //     communicationStatus:"SUCCESS",
-            //     responseDescription: response.data
-            //  }); 
+               //await electricityPaymentService(req,res,response,amount,meterNumber,trxId)
+               await bulkSmsPaymentService(req,res,response,amount,recipients,description,senderId,smsMessage)
             }
                 
         } catch (error) {
-            console.log("error;;",error)
             if(error.response.status===401){
                 return res.status(401).json({
                     responseCode: 401,
@@ -73,7 +68,7 @@ class airtimeController{
         }
           
     }
-    static async ValidatePhoneNumber(req, res) {
+    static async ValidateCustomerMeterNumber(req, res) {
       const accessToken = await generateAccessToken();
       const {customerAccountNumber}=req.body
 
@@ -86,7 +81,7 @@ class airtimeController{
       }
       // console.log("accesst:",accessToken.replace(/['"]+/g, ''))
       let data = JSON.stringify({
-        verticalId: "airtime",
+        verticalId: "electricity",
         customerAccountNumber: customerAccountNumber
       }
       );
@@ -109,7 +104,6 @@ class airtimeController{
                   responseCode: 200,
                   communicationStatus:"SUCCESS",
                   responseDescription: "Customer Detail",
-                  //data:response.data
                   data:{
                     pdtId: response.data.data.pdtId,
                     pdtName: response.data.data.pdtName,
@@ -148,13 +142,6 @@ class airtimeController{
                 responseDescription: error.response.data.msg
               }); 
         }
-        if(error.response.status===400){
-            return res.status(400).json({
-                responseCode: 400,
-                communicationStatus:"FAILED",
-                responseDescription: error.response.data.msg
-              }); 
-        }
           return res.status(500).json({
               responseCode: 500,
               communicationStatus:"FAILED",
@@ -165,4 +152,4 @@ class airtimeController{
   }
    
 }
-module.exports= airtimeController;
+module.exports= electricityController;

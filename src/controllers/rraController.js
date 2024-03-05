@@ -4,14 +4,71 @@ const generateAccessToken =require("../Utils/generateToken.js");
 dotenv.config();
 class rraController{
     static async rraPayment(req, res) {
-        const {amount}=req.body
+        const {amount,referenceId,taxpayer,trxId,transferTypeId,toMemberId}=req.body
         const authheader = req.headers.authorization;
         let data = JSON.stringify({
-            "toMemberId": "34",
+            "toMemberId": `${toMemberId}`,
             "amount": `${amount}`,
-            "transferTypeId": "85",
+            "transferTypeId":`${transferTypeId}`,
             "currencySymbol": "Rwf",
-            "description": "RRA Tax Payment"
+            "description": "RRA Tax Payment",
+            "customValues": [
+              {
+              "internalName" : "tax_identification_number",
+              "fieldId" : "82",
+              "value" : "11986801789765"
+              },
+                  {
+              "internalName" : "validation_id",
+              "fieldId" : "83",
+              "value" : "12345"
+                  },
+                  {
+              "internalName" : "tax_document_id",
+              "fieldId" : "84",
+              "value" :`${referenceId}`
+                  },
+                  {
+              "internalName" : "tax_center",
+              "fieldId" : "85",
+              "value" : "Kigali"
+                  },
+                  {
+              "internalName" : "declaration_date",
+              "fieldId" : "86",
+              "value" : "2024-02-09"
+                  },
+                  {
+              "internalName" : "full_payment_status",
+              "fieldId" : "87",
+              "value" : "Successful"
+                  },
+                  {
+              "internalName" : "tax_type",
+              "fieldId" : "88",
+              "value" : "Cleaning Fee"
+                  },
+                  {
+              "internalName" : "taxpayer",
+              "fieldId" : "89",
+              "value" : `${taxpayer}`
+                  },
+                  {
+              "internalName" : "createdat",
+              "fieldId" : "90",
+              "value" : "2024-02-09"
+                  },
+                  {
+              "internalName" : "updatedat",
+              "fieldId" : "91",
+              "value" : "2024-02-09"
+                  },
+                  {
+              "internalName" : "receiptNo",
+              "fieldId" : "92",
+              "value" : "DDIN123456789"
+                  }
+              ]
           });
           
           let config = {
@@ -64,7 +121,7 @@ class rraController{
                   }); 
             }
             return res.status(500).json({
-                responseCodeCode: 500,
+                responseCode: 500,
                 communicationStatus:"FAILED",
                 error: error.message,
               });  
@@ -135,7 +192,7 @@ class rraController{
               }); 
         }
           return res.status(500).json({
-              responseCodeCode: 500,
+              responseCode: 500,
               communicationStatus:"FAILED",
               error: error.message
             });  

@@ -20,8 +20,22 @@ class authController{
                         id:response.data.id,
                         name:response.data.name,
                         email:response.data.email,
-                        phoneNumber:response.data.customValues[0].value,
-                        agentCategory:response.data.customValues[10].value
+                        phone: response.data.customValues[0].value,
+                        username: response.data.username,
+                        image: null,
+                        country: response.data.customValues[3].value,
+                        nationalId: response.data.customValues[1].value,
+                        birthday: response.data.customValues[8].value,
+                        gender: response.data.customValues[7].value,
+                        city: null,
+                        province: response.data.customValues[4].value,
+                        district: response.data.customValues[5].value,
+                        sector: response.data.customValues[6].value,
+                        agentCategory: response.data.customValues[10].value,
+                        agentFloatAccountId: "125",
+                        agentInstantCommissionAccountId: "126",
+                        agentDelayedCommissionAccountId: "127"
+                        
                     }
                   });  
             }
@@ -47,7 +61,7 @@ class authController{
                   }); 
             }
             return res.status(500).json({
-                responseCodeCode: 500,
+                responseCode: 500,
                 communicationStatus:"FAILED",
                 error: error.message,
               });  

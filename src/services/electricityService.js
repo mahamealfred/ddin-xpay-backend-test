@@ -27,7 +27,7 @@ const electricityPaymentService = async(req,res,response,amount,meterNumber,trxI
         let config = {
           method: 'post',
           maxBodyLength: Infinity,
-          url:'https://sb-api.efashe.com/rw/v2/vend/execute',
+          url:process.env.EFASHE_URL+'/rw/v2/vend/execute',
           headers: { 
             'Content-Type': 'application/json', 
             'Authorization':`Bearer ${accessToken.replace(/['"]+/g, '')}`
@@ -53,7 +53,7 @@ const electricityPaymentService = async(req,res,response,amount,meterNumber,trxI
            
           
       } catch (error) {
-        console.log("error:",error)
+      
         if(error.response.status===400){
           return res.status(400).json({
               responseCode: 400,
@@ -64,7 +64,7 @@ const electricityPaymentService = async(req,res,response,amount,meterNumber,trxI
       }
       
           return res.status(500).json({
-              responseCodeCode: 500,
+              responseCode: 500,
               communicationStatus:"FAILED",
               error: error.response.data.msg,
             });  
