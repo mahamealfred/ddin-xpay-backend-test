@@ -18,7 +18,7 @@ const bulkSmsPaymentService = async(req,res,response,amount,recipients,descripti
         url: 'https://api.pindo.io/v1/sms/bulk',
         headers: { 
           'Content-Type': 'application/json', 
-          'Authorization': 'Bearer eyJhbGciOiJub25lIn0.eyJpZCI6Ijc1MSIsInJldm9rZWRfdG9rZW5fY291bnQiOjV9.'
+          'Authorization': 'Bearer '
         },
         data : data
       };
