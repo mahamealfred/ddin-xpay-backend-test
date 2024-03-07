@@ -18,7 +18,7 @@ const bulkSmsPaymentService = async(req,res,response,amount,recipients,descripti
         url: 'https://api.pindo.io/v1/sms/bulk',
         headers: { 
           'Content-Type': 'application/json', 
-          'Authorization': 'Bearer '
+          'Authorization': 'Bearer eyJhbGciOiJub25lIn0.eyJpZCI6Ijc1MSIsInJldm9rZWRfdG9rZW5fY291bnQiOjV9.'
         },
         data : data
       };
@@ -28,12 +28,14 @@ const bulkSmsPaymentService = async(req,res,response,amount,recipients,descripti
           if(resp.status===201){
               return res.status(200).json({
                   responseCode: 200,
-                  communicationStatus:"SUCCESS",
+                  communicationStatus:resp.data.status,
+                  codeDescription:"SMS has been sent.",
                   responseDescription: "SMS has been sent!",
                   data:{
                     transactionId:response.data.id,
                     amount:amount,
-                    description:description
+                    description:description,
+                    pindoSmsId:1
                   }
                 });  
           }
@@ -55,6 +57,14 @@ const bulkSmsPaymentService = async(req,res,response,amount,recipients,descripti
            
           });  
     }
+    if(error.response.status===409){
+      return res.status(409).json({
+          responseCode: 409,
+          communicationStatus:"FAILED",
+          responseDescription:"Unknown sender id"
+         
+        });  
+  }
           return res.status(500).json({
               responseCode: 500,
               communicationStatus:"FAILED",

@@ -132,7 +132,7 @@ class rraController{
     //validate RRA id
     static async ValidateRRAId(req, res) {
       const accessToken = await generateAccessToken();
-      const {customerAccountNumber}=req.body
+      const {phoneNumber,verticalId}=req.body
 
       if(!accessToken){
         return res.status(401).json({
@@ -143,8 +143,8 @@ class rraController{
       }
       // console.log("accesst:",accessToken.replace(/['"]+/g, ''))
       let data = JSON.stringify({
-        verticalId: "tax",
-        customerAccountNumber: customerAccountNumber
+        verticalId: verticalId,
+        customerAccountNumber: phoneNumber
       }
       );
         let config = {
@@ -166,7 +166,7 @@ class rraController{
                   responseCode: 200,
                   communicationStatus:"SUCCESS",
                   responseDescription: " Details",
-                  data:""
+                  data:response.data.data
                 });  
           }
               return res.status(500).json({
