@@ -2,12 +2,56 @@ const dotenv =require("dotenv")
 const axios =require("axios");
 const generateAccessToken =require("../Utils/generateToken.js");
 const bulkSmsPaymentService = require("../services/bulkSmsService.js");
-
-
+const ddinPindoBulkSmsPayment = require("../services/bulkSmsService.js");
 dotenv.config();
 
+class bulkSmsController{
+  //new method
+  static async pindoBulkSMSPayment(req, res) {
+    const {amount,recipients,transferTypeId,toMemberId,description,senderId,smsMessage,currencySymbol}=req.body;
+    const authheader = req.headers.authorization;
+    let data = JSON.stringify({
+      "sender": senderId,
+      "text": smsMessage,
+      "recipients": recipients
+    });
+    
+    let config = {
+      method: 'post',
+      maxBodyLength: Infinity,
+      url: 'https://api.pindo.io/v1/sms/bulk',
+      headers: { 
+        'Content-Type': 'application/json', 
+        'Authorization': 'Bearer eyJhbGciOiJub25lIn0.eyJpZCI6Ijc1MSIsInJldm9rZWRfdG9rZW5fY291bnQiOjV9.'
+      },
+      data : data
+    };
+    
+    try{
+        const resp =await axios.request(config)
+        if(resp.status===201){
+             //call logs ddin core
+          await ddinPindoBulkSmsPayment(req,res,resp ,amount,transferTypeId,toMemberId,description,currencySymbol,authheader )
+       
+        }
+         
+    } catch (error) {
+      if (error.response.status === 409) {
+        return res.status(409).json({
+          responseCode: 409,
+          communicationStatus: "FAILED",
+          responseDescription: error.response.data.message
+        });
+      }
+      return res.status(500).json({
+        responseCode: 500,
+        communicationStatus: "FAILED",
+        error: error.message
+      });
+    }
+  };
 
-class electricityController{
+  //previous method
     static async bulkSMSPayment(req, res) {
         const {amount,recipients,transferTypeId,toMemberId,description,senderId,smsMessage,currencySymbol}=req.body;
         const authheader = req.headers.authorization;
@@ -33,6 +77,7 @@ class electricityController{
         try{
             const response =await axios.request(config)
             if(response.status===200){
+              // console.log("response from cyclos:",response)
                 //call electricity service payment
                //await electricityPaymentService(req,res,response,amount,meterNumber,trxId)
                await bulkSmsPaymentService(req,res,response,amount,recipients,description,senderId,smsMessage)
@@ -68,88 +113,7 @@ class electricityController{
         }
           
     }
-    static async ValidateCustomerMeterNumber(req, res) {
-      const accessToken = await generateAccessToken();
-      const {customerAccountNumber}=req.body
-
-      if(!accessToken){
-        return res.status(401).json({
-          responseCode: 401,
-          communicationStatus:"FAILED",
-          responseDescription: "A Token is required for authentication"
-        }); 
-      }
-      // console.log("accesst:",accessToken.replace(/['"]+/g, ''))
-      let data = JSON.stringify({
-        verticalId: "electricity",
-        customerAccountNumber: customerAccountNumber
-      }
-      );
-        let config = {
-          method: 'post',
-          maxBodyLength: Infinity,
-          url: process.env.EFASHE_URL+'/rw/v2/vend/validate',
-          headers: { 
-            'Content-Type': 'application/json', 
-            'Authorization':`Bearer ${accessToken.replace(/['"]+/g, '')}`
-          },
-          data : data
-        };
-
-      try{
-          const response =await axios.request(config)
-         
-          if(response.status===200){
-              return res.status(200).json({
-                  responseCode: 200,
-                  communicationStatus:"SUCCESS",
-                  responseDescription: "Customer Detail",
-                  data:{
-                    pdtId: response.data.data.pdtId,
-                    pdtName: response.data.data.pdtName,
-                    pdtStatusId: response.data.data.pdtStatusId,
-                    verticalId: response.data.data.verticalId,
-                    customerAccountNumber: response.data.data.customerAccountNumber,
-                    svcProviderName:response.data.data. svcProviderName,
-                    vendUnitId: response.data.data.vendUnitId,
-                    vendMin:response.data.data.vendMin,
-                    vendMax: response.data.data.vendMax,
-                    trxResult: response.data.data.trxResult,
-                    trxId: response.data.data.trxId,
-                    availTrxBalance: response.data.data.availTrxBalance
-                  }
-                });  
-          }
-              return res.status(500).json({
-                  responseCode: 500,
-                  communicationStatus:"FAILED",
-                  responseDescription: "Something went wrong, Please try again later.",
-                });
-          
-      } catch (error) {
-      
-          if(error.response.status===404){
-              return res.status(404).json({
-                  responseCode: 404,
-                  communicationStatus:"FAILED",
-                  responseDescription: " Not Found"
-                }); 
-          }
-          if(error.response.status===422){
-            return res.status(422).json({
-                responseCode: 422,
-                communicationStatus:"FAILED",
-                responseDescription: error.response.data.msg
-              }); 
-        }
-          return res.status(500).json({
-              responseCode: 500,
-              communicationStatus:"FAILED",
-              error: error.message,
-            });  
-      }
-        
-  }
+   
    
 }
-module.exports= electricityController;
+module.exports= bulkSmsController;

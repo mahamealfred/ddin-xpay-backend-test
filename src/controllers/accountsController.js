@@ -5,7 +5,7 @@ class accountsController{
     static async getAccountsBalance(req, res) {
         const authheader = req.headers.authorization;
         try {
-     const response = await axios.get(process.env.CORE_TEST_URL+'/coretest/rest/accounts/default/status',{
+     const response = await axios.get(process.env.CORE_TEST_URL+'/coretest/rest/accounts/127/status',{
         headers: {
             Authorization: authheader,
           },

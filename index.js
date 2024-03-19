@@ -2,7 +2,7 @@ const express=require("express")
 const cors=require("cors")
 const dotenv=require("dotenv")
 const routes=require("./src/routes/index.js")
-
+const dbConection=require("./src/db/config.js");
 
 dotenv.config();
 const app = express();
@@ -15,7 +15,7 @@ app.enable('trust proxy');
 
 //loading routes
 app.use(routes);
-
 app.listen(PORT, () => {
+   dbConection
     console.log(`Server is listening on port:${PORT}`);
   });
