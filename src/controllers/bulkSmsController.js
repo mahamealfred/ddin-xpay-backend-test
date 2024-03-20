@@ -36,13 +36,13 @@ class bulkSmsController{
         }
          
     } catch (error) {
-      if (error.response.status === 409) {
-        return res.status(409).json({
-          responseCode: 409,
-          communicationStatus: "FAILED",
-          responseDescription: error.response.data.message
-        });
-      }
+      // if (error.response.status === 409) {
+      //   return res.status(409).json({
+      //     responseCode: 409,
+      //     communicationStatus: "FAILED",
+      //     responseDescription: error.response.data.message
+      //   });
+      // }
       return res.status(500).json({
         responseCode: 500,
         communicationStatus: "FAILED",

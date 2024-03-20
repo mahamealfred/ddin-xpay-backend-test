@@ -2,7 +2,8 @@ const dotenv = require("dotenv")
 const axios = require("axios");
 const generateAccessToken = require("../Utils/generateToken.js");
 const dbConnect = require("../db/config.js");
-const logsData = require("../Utils/logsData.js");
+const { logsData } = require("../Utils/logsData.js");
+
 
 dotenv.config();
 
@@ -12,6 +13,8 @@ const ddinPindoBulkSmsPayment = async (req, res, resp, amount, transferTypeId, t
   const authHeaderValue = authheader.split(' ')[1]; // Extracting the value after 'Basic ' or 'Bearer '
      const decodedValue = Buffer.from(authHeaderValue, 'base64').toString('ascii');
      const agent_name=decodedValue.split(':')[0]
+     const service_name="Pindo Bulks SMS"
+     const trxId=""
   let data = JSON.stringify({
     "toMemberId": `${toMemberId}`,
     "amount": `${amount}`,
@@ -38,8 +41,10 @@ const ddinPindoBulkSmsPayment = async (req, res, resp, amount, transferTypeId, t
      //call logs table
      const transactionId=response.data.id
      const thirdpart_status=resp.data.status
+     
+     const trxId=""
      const status="Complete"
-    logsData(transactionId,thirdpart_status,description,amount,agent_name,status)
+    logsData(transactionId,thirdpart_status,description,amount,agent_name,status,service_name,trxId)
       return res.status(200).json({
         responseCode: 200,
         communicationStatus: resp.data.status,
@@ -56,14 +61,15 @@ const ddinPindoBulkSmsPayment = async (req, res, resp, amount, transferTypeId, t
       const transactionId=""
       const thirdpart_status=resp.data.status
       const status="Incomplete"
-     return logsData(transactionId,thirdpart_status,description,amount,agent_name,status)
+     return logsData(transactionId,thirdpart_status,description,amount,agent_name,status,service_name,trxId)
     }
 
   } catch (error) {
     const transactionId=""
     const thirdpart_status=resp.data.status
     const status="Incomplete"
-    logsData(transactionId,thirdpart_status,description,amount,agent_name,status)
+    logsData(transactionId,thirdpart_status,description,amount,agent_name,status,service_name,trxId)
+
     if (error.response.status === 401) {
       return res.status(401).json({
         responseCode: 401,

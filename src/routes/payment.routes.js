@@ -16,7 +16,7 @@ router.post('/electricity/payment',electricityController.electrictyPayment);
 
 //AIRTIME PAYMENT
 router.post('/airtime/validate-vend',airtimeController.ValidatePhoneNumber);
-router.post('/airtime/payment',airtimeController.airtimePayment);
+router.post('/airtime/payment',CheckAccountStatus,airtimeController.airTimePayment);
 
 //BULK SMS 
 router.post('/pindo-bulksms/payment',CheckAccountStatus,bulkSmsController.pindoBulkSMSPayment);
