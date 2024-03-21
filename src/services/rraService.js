@@ -5,14 +5,71 @@ const { updateLogs } = require("../Utils/logsData.js");
 
 dotenv.config();
 
-const ddinAirtimePaymentService = async (req, res,resp,amount, trxId, transferTypeId, toMemberId, description, currencySymbol, phoneNumber, authheader) => {
+const ddinRraPaymentService = async (req, res,amount,referenceId,taxpayer, trxId, transferTypeId, toMemberId, description, currencySymbol, phoneNumber, authheader) => {
   
   let data = JSON.stringify({
     "toMemberId": toMemberId,
     "amount": amount,
     "transferTypeId": transferTypeId,
     "currencySymbol": currencySymbol,
-    "description": description
+    "description": description,
+    "customValues": [
+        {
+        "internalName" : "tax_identification_number",
+        "fieldId" : "82",
+        "value" : "11986801789765"
+        },
+            {
+        "internalName" : "validation_id",
+        "fieldId" : "83",
+        "value" : "12345"
+            },
+            {
+        "internalName" : "tax_document_id",
+        "fieldId" : "84",
+        "value" :`${referenceId}`
+            },
+            {
+        "internalName" : "tax_center",
+        "fieldId" : "85",
+        "value" : "Kigali"
+            },
+            {
+        "internalName" : "declaration_date",
+        "fieldId" : "86",
+        "value" : "2024-02-09"
+            },
+            {
+        "internalName" : "full_payment_status",
+        "fieldId" : "87",
+        "value" : "Successful"
+            },
+            {
+        "internalName" : "tax_type",
+        "fieldId" : "88",
+        "value" : "Cleaning Fee"
+            },
+            {
+        "internalName" : "taxpayer",
+        "fieldId" : "89",
+        "value" : `${taxpayer}`
+            },
+            {
+        "internalName" : "createdat",
+        "fieldId" : "90",
+        "value" : "2024-02-09"
+            },
+            {
+        "internalName" : "updatedat",
+        "fieldId" : "91",
+        "value" : "2024-02-09"
+            },
+            {
+        "internalName" : "receiptNo",
+        "fieldId" : "92",
+        "value" : "DDIN123456789"
+            }
+        ]
   });
   
   let config = {
@@ -48,7 +105,7 @@ updateLogs(transactionId,status, trxId)
     }
 
   } catch (error) {
-    //console.log("error :",error.response)
+    console.log("error :",error.response)
     if (error.response.status === 401) {
       return res.status(401).json({
         responseCode: 401,
@@ -79,72 +136,5 @@ updateLogs(transactionId,status, trxId)
 };
 
 
-//prevous methode
-const airtimePaymentService = async (req, res, response, amount, phoneNumber, trxId) => {
-  const accessToken = await generateAccessToken();
 
-  if (!accessToken) {
-    return res.status(401).json({
-      responseCode: 401,
-      communicationStatus: "FAILED",
-      responseDescription: "A Token is required for authentication"
-    });
-  }
-  let data = JSON.stringify({
-    trxId: trxId,
-    customerAccountNumber: phoneNumber,
-    amount: amount,
-    verticalId: "airtime",
-    deliveryMethodId: "direct_topup",
-    deliverTo: "string",
-    callBack: "string"
-  }
-  );
-  let config = {
-    method: 'post',
-    maxBodyLength: Infinity,
-    url: process.env.EFASHE_URL + '/rw/v2/vend/execute',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${accessToken.replace(/['"]+/g, '')}`
-    },
-    data: data
-  };
-
-  try {
-    const resp = await axios.request(config)
-
-    if (resp.status === 202) {
-      return res.status(200).json({
-        responseCode: 200,
-        communicationStatus: "SUCCESS",
-        responseDescription: "Payment has been processed! Details of transactions are included below",
-        data: {
-          transactionId: response.data.id,
-          amount: amount,
-          meterNumber: meterNumber
-        }
-      });
-    }
-
-
-  } catch (error) {
-    console.log("error:", error)
-    if (error.response.status === 400) {
-      return res.status(400).json({
-        responseCode: 400,
-        communicationStatus: "FAILED",
-        responseDescription: error.response.data.msg
-
-      });
-    }
-
-    return res.status(500).json({
-      responseCode: 500,
-      communicationStatus: "FAILED",
-      error: error.response.data.msg,
-    });
-  }
-};
-
-module.exports = ddinAirtimePaymentService
+module.exports = ddinRraPaymentService

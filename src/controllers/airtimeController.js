@@ -4,19 +4,20 @@ const generateAccessToken = require("../Utils/generateToken.js");
 const airtimePaymentService = require("../services/airtimeService.js");
 const ddinAirtimePaymentService = require("../services/airtimeService.js");
 const checkTansactionStatus = require("../Utils/checkEfasheTransactionStatus.js");
+const { logsData } = require("../Utils/logsData.js");
 
 dotenv.config();
 
-class airtimeController {
+class AirtimeController {
 
   //new method
   static async airTimePayment(req, res) {
-    const { amount, trxId,transferTypeIdransferTypeId,toMemberId,description,currencySymbol,phoneNumber } = req.body;
+    const { amount, trxId, transferTypeIdransferTypeId, toMemberId, description, currencySymbol, phoneNumber } = req.body;
     const authheader = req.headers.authorization;
-//agent name
-const authHeaderValue = authheader.split(' ')[1]; // Extracting the value after 'Basic ' or 'Bearer '
-const decodedValue = Buffer.from(authHeaderValue, 'base64').toString('ascii');
-const agent_name=decodedValue.split(':')[0]
+    //agent name
+    const authHeaderValue = authheader.split(' ')[1];
+    const decodedValue = Buffer.from(authHeaderValue, 'base64').toString('ascii');
+    const agent_name = decodedValue.split(':')[0]
     const accessToken = await generateAccessToken();
     if (!accessToken) {
       return res.status(401).json({
@@ -30,7 +31,7 @@ const agent_name=decodedValue.split(':')[0]
       customerAccountNumber: phoneNumber,
       amount: amount,
       verticalId: "airtime",
-      deliveryMethodId: "sms",
+      deliveryMethodId: "direct_topup",
       deliverTo: "string",
       callBack: "string"
     }
@@ -49,104 +50,33 @@ const agent_name=decodedValue.split(':')[0]
     try {
       const resp = await axios.request(config)
       if (resp.status === 202) {
-        //save in logs table
-        const transactionId=""
-        const thirdpart_status=resp.status
-        const service_name="Airtime Payment"
-        const status="Incomplete"
-logsData(transactionId,thirdpart_status,description,amount,agent_name,status,service_name,trxId)
-ddinAirtimePaymentService(req,res,resp,amount, trxId,transferTypeIdransferTypeId,toMemberId,description,currencySymbol,phoneNumber,authheader )
+      //   //save in logs table
+        const transactionId = ""
+       const thirdpart_status = resp.status
+        const service_name = "Airtime Payment"
+        const status = "Incomplete"
+        logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
+        ddinAirtimePaymentService(req, res, resp, amount, trxId, transferTypeIdransferTypeId, toMemberId, description, currencySymbol, phoneNumber, authheader)
+      
       }
 
     } catch (error) {
-     
       if (error.response.status === 400) {
-        
         return res.status(400).json({
           responseCode: 400,
           communicationStatus: "FAILED",
-          coment:"hello",
           responseDescription: error.response.data.msg
-
         });
       }
       return res.status(500).json({
         responseCode: 500,
         communicationStatus: "FAILED",
-        error: error.response.data.msg,
+        error: error.response.data.msg
       });
     }
   }
 
-  //Previous methode
-  static async airtimePayment(req, res) {
-    const { amount, trxId, transferTypeId, toMemberId, phoneNumber } = req.body;
-    const authheader = req.headers.authorization;
-    let data = JSON.stringify({
-      "toMemberId": `${toMemberId}`,
-      "amount": `${amount}`,
-      "transferTypeId": `${transferTypeId}`,
-      "currencySymbol": "Rwf",
-      "description": "Airtime Payment"
-
-    });
-
-    let config = {
-      method: 'post',
-      maxBodyLength: Infinity,
-      url: process.env.CORE_TEST_URL + '/coretest/rest/payments/confirmMemberPayment',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `${authheader}`
-      },
-      data: data
-    };
-
-    try {
-      const response = await axios.request(config)
-      if (response.status === 200) {
-        
-        
-        //call electricity service payment
-        await airtimePaymentService(req, res, response, amount, phoneNumber, trxId)
-        //   return res.status(200).json({
-        //     responseCode: 200,
-        //     communicationStatus:"SUCCESS",
-        //     responseDescription: response.data
-        //  }); 
-      }
-
-    } catch (error) {
-      console.log("error;;", error)
-      if (error.response.status === 401) {
-        return res.status(401).json({
-          responseCode: 401,
-          communicationStatus: "FAILED",
-          responseDescription: "Username and Password are required for authentication"
-        });
-      }
-      if (error.response.status === 400) {
-        return res.status(400).json({
-          responseCode: 400,
-          communicationStatus: "FAILED",
-          responseDescription: "Invalid Username or Password"
-        });
-      }
-      if (error.response.status === 404) {
-        return res.status(404).json({
-          responseCode: 404,
-          communicationStatus: "FAILED",
-          responseDescription: "Account Not Found"
-        });
-      }
-      return res.status(500).json({
-        responseCode: 500,
-        communicationStatus: "FAILED",
-        error: error.message,
-      });
-    }
-
-  }
+ 
   static async ValidatePhoneNumber(req, res) {
     const accessToken = await generateAccessToken();
     const { customerAccountNumber } = req.body
@@ -238,4 +168,4 @@ ddinAirtimePaymentService(req,res,resp,amount, trxId,transferTypeIdransferTypeId
   }
 
 }
-module.exports = airtimeController;
+module.exports = AirtimeController;

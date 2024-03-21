@@ -1,8 +1,81 @@
 const dotenv =require("dotenv")
 const axios =require("axios");
 const generateAccessToken =require("../Utils/generateToken.js");
+const { logsData } = require("../Utils/logsData.js");
+const ddinRraPaymentService = require("../services/rraService.js");
 dotenv.config();
 class rraController{
+
+  //new method
+  static async rraEfashePayment(req, res) {
+    const { amount, trxId, transferTypeIdransferTypeId, toMemberId, description, currencySymbol, phoneNumber } = req.body;
+    const authheader = req.headers.authorization;
+    //agent name
+    const authHeaderValue = authheader.split(' ')[1];
+    const decodedValue = Buffer.from(authHeaderValue, 'base64').toString('ascii');
+    const agent_name = decodedValue.split(':')[0]
+    const accessToken = await generateAccessToken();
+    if (!accessToken) {
+      return res.status(401).json({
+        responseCode: 401,
+        communicationStatus: "FAILED",
+        responseDescription: "A Token is required for authentication"
+      });
+    }
+    let data = JSON.stringify({
+      trxId: trxId,
+      customerAccountNumber: phoneNumber,
+      amount: amount,
+      verticalId: "tax",
+      deliveryMethodId: "direct_topup",
+      deliverTo: "string",
+      callBack: "string"
+    }
+    );
+    let config = {
+      method: 'post',
+      maxBodyLength: Infinity,
+      url: process.env.EFASHE_URL + '/rw/v2/vend/execute',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken.replace(/['"]+/g, '')}`
+      },
+      data: data
+    };
+
+    try {
+      const resp = await axios.request(config)
+      if (resp.status === 202) {
+      //   //save in logs table
+        const transactionId = ""
+       const thirdpart_status = 202
+        const service_name = "Tax Payment"
+        const status = "Incomplete"
+        const referenceId=12
+        const  taxpayer='maahme alfred'
+        logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
+        ddinRraPaymentService(req, res,referenceId,taxpayer, amount, trxId, transferTypeIdransferTypeId, toMemberId, description, currencySymbol, phoneNumber, authheader)
+      
+     }
+
+    } catch (error) {
+      if (error.response.status === 400) {
+        return res.status(400).json({
+          responseCode: 400,
+          communicationStatus: "FAILED",
+          responseDescription: error.response.data.msg
+        });
+      }
+      return res.status(500).json({
+        responseCode: 500,
+        communicationStatus: "FAILED",
+        error: error.response.data.msg
+      });
+    }
+  }
+  
+
+  //previous payment
     static async rraPayment(req, res) {
         const {amount,referenceId,taxpayer,trxId,transferTypeId,toMemberId}=req.body
         const authheader = req.headers.authorization;
@@ -132,7 +205,7 @@ class rraController{
     //validate RRA id
     static async ValidateRRAId(req, res) {
       const accessToken = await generateAccessToken();
-      const {phoneNumber,verticalId}=req.body
+      const {customerAccountNumber,verticalId}=req.body
 
       if(!accessToken){
         return res.status(401).json({
@@ -143,8 +216,8 @@ class rraController{
       }
       // console.log("accesst:",accessToken.replace(/['"]+/g, ''))
       let data = JSON.stringify({
-        verticalId: verticalId,
-        customerAccountNumber: phoneNumber
+        verticalId: "tax",
+        customerAccountNumber: customerAccountNumber
       }
       );
         let config = {

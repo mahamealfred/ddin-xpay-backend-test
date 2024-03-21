@@ -2,77 +2,81 @@ const dotenv =require("dotenv")
 const axios =require("axios");
 const generateAccessToken =require("../Utils/generateToken.js");
 const electricityPaymentService =require("../services/electricityService.js");
+const { logsData } = require("../Utils/logsData.js");
+const ddinElectricityPaymentService = require("../services/electricityService.js");
 
 dotenv.config();
 
 
 class electricityController{
-    static async electrictyPayment(req, res) {
-        const {amount,meterNumber,trxId,transferTypeId,toMemberId}=req.body;
-        const authheader = req.headers.authorization;
-        let data = JSON.stringify({
-            "toMemberId": `${toMemberId}`,
-            "amount": `${amount}`,
-            "transferTypeId": `${transferTypeId}`,
-            "currencySymbol": "Rwf",
-            "description": "Electricity Payment",
-            "customValues": [
-              {
-                "internalName": "meterNumber",
-                "fieldId": "117",
-                "value": `${meterNumber}`
-              }
-            ]
-          });
-          
-          let config = {
-            method: 'post',
-            maxBodyLength: Infinity,
-            url: process.env.CORE_TEST_URL+'/coretest/rest/payments/confirmMemberPayment',
-            headers: { 
-              'Content-Type': 'application/json', 
-              'Authorization': `${authheader}`
-            },
-            data : data
-          };
 
-        try{
-            const response =await axios.request(config)
-            if(response.status===200){
-                //call electricity service payment
-               await electricityPaymentService(req,res,response,amount,meterNumber,trxId)
-            }
-                
-        } catch (error) {
-            if(error.response.status===401){
-                return res.status(401).json({
-                    responseCode: 401,
-                    communicationStatus:"FAILED",
-                    responseDescription: "Username and Password are required for authentication"
-                  }); 
-            }
-            if(error.response.status===400){
-                return res.status(400).json({
-                    responseCode: 400,
-                    communicationStatus:"FAILED",
-                    responseDescription: "Invalid Username or Password"
-                  }); 
-            }
-            if(error.response.status===404){
-                return res.status(404).json({
-                    responseCode: 404,
-                    communicationStatus:"FAILED",
-                    responseDescription: "Account Not Found"
-                  }); 
-            }
-            return res.status(500).json({
-                responseCode: 500,
-                communicationStatus:"FAILED",
-                error: error.message,
-              });  
-        }
-          
+  //new method
+  static async electricityEfashePayment(req, res) {
+    const { amount, trxId, transferTypeIdransferTypeId, toMemberId, description, currencySymbol, phoneNumber } = req.body;
+    const authheader = req.headers.authorization;
+    //agent name
+    const authHeaderValue = authheader.split(' ')[1];
+    const decodedValue = Buffer.from(authHeaderValue, 'base64').toString('ascii');
+    const agent_name = decodedValue.split(':')[0]
+    const accessToken = await generateAccessToken();
+    if (!accessToken) {
+      return res.status(401).json({
+        responseCode: 401,
+        communicationStatus: "FAILED",
+        responseDescription: "A Token is required for authentication"
+      });
     }
+    let data = JSON.stringify({
+      trxId: trxId,
+      customerAccountNumber: phoneNumber,
+      amount: amount,
+      verticalId: "electricity", 
+      deliveryMethodId: "sms",
+      deliverTo: "string",
+      callBack: "string"
+      
+    }
+    );
+    let config = {
+      method: 'post',
+      maxBodyLength: Infinity,
+      url: process.env.EFASHE_URL + '/rw/v2/vend/execute',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken.replace(/['"]+/g, '')}`
+      },
+      data: data
+    };
+
+    try {
+      const resp = await axios.request(config)
+      if (resp.status === 202) {
+      //   //save in logs table
+        const transactionId = ""
+       const thirdpart_status = resp.status
+        const service_name = "Electricity Payment"
+        const status = "Incomplete"
+        logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
+        ddinElectricityPaymentService(req, res, resp, amount, trxId, transferTypeIdransferTypeId, toMemberId, description, currencySymbol, phoneNumber, authheader)
+      
+      }
+
+    } catch (error) {
+      if (error.response.status === 400) {
+        return res.status(400).json({
+          responseCode: 400,
+          communicationStatus: "FAILED",
+          responseDescription: error.response.data.msg
+        });
+      }
+      return res.status(500).json({
+        responseCode: 500,
+        communicationStatus: "FAILED",
+        error: error.response.data.msg
+      });
+    }
+  }
+  
     static async ValidateCustomerMeterNumber(req, res) {
       const accessToken = await generateAccessToken();
       const {customerAccountNumber}=req.body
