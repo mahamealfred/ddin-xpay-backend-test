@@ -24,7 +24,7 @@ const  ddinElectricityPaymentService = async (req, res,resp,amount, trxId, trans
   let config = {
     method: 'post',
     maxBodyLength: Infinity,
-    url: process.env.CORE_TEST_URL+'/coretest/rest/payments/confirmMemberPayment',
+    url: process.env.CORE_URL+'/rest/payments/confirmMemberPayment',
     headers: { 
       'Content-Type': 'application/json', 
       'Authorization':  `${authheader}`

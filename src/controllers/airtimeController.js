@@ -12,7 +12,7 @@ class AirtimeController {
 
   //new method
   static async airTimePayment(req, res) {
-    const { amount, trxId, transferTypeIdransferTypeId, toMemberId, description, currencySymbol, phoneNumber } = req.body;
+    const { amount, trxId,transferTypeId, toMemberId, description, currencySymbol, phoneNumber } = req.body;
     const authheader = req.headers.authorization;
     //agent name
     const authHeaderValue = authheader.split(' ')[1];
@@ -56,7 +56,7 @@ class AirtimeController {
         const service_name = "Airtime Payment"
         const status = "Incomplete"
         logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
-        ddinAirtimePaymentService(req, res, resp, amount, trxId, transferTypeIdransferTypeId, toMemberId, description, currencySymbol, phoneNumber, authheader)
+        ddinAirtimePaymentService(req, res, resp, amount, trxId, transferTypeId, toMemberId, description, currencySymbol, phoneNumber, authheader)
       
       }
 
@@ -65,7 +65,7 @@ class AirtimeController {
         return res.status(400).json({
           responseCode: 400,
           communicationStatus: "FAILED",
-          responseDescription: error.response.data.msg
+          responseDescription: error.response.data.error
         });
       }
       return res.status(500).json({
@@ -79,7 +79,7 @@ class AirtimeController {
  
   static async ValidatePhoneNumber(req, res) {
     const accessToken = await generateAccessToken();
-    const { customerAccountNumber } = req.body
+    const {customerAccountNumber} = req.body
 
     if (!accessToken) {
       return res.status(401).json({
@@ -112,8 +112,7 @@ class AirtimeController {
         return res.status(200).json({
           responseCode: 200,
           communicationStatus: "SUCCESS",
-          responseDescription: "Customer Detail",
-          //data:response.data
+          responseDescription: "SUCCESS-EFASHE Customer Details",
           data: {
             pdtId: response.data.data.pdtId,
             pdtName: response.data.data.pdtName,
@@ -124,10 +123,15 @@ class AirtimeController {
             vendUnitId: response.data.data.vendUnitId,
             vendMin: response.data.data.vendMin,
             vendMax: response.data.data.vendMax,
+            selectAmount: response.data.data.selectAmount,
+            localStockMgt: response.data.data.localStockMgt,
+            stockedPdts: response.data.data.stockedPdts,
+            stock: response.data.data.stock,
             trxResult: response.data.data.trxResult,
             trxId: response.data.data.trxId,
             availTrxBalance: response.data.data.availTrxBalance
           }
+
         });
       }
       return res.status(500).json({

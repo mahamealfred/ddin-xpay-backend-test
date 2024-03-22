@@ -10,7 +10,7 @@ const CheckAccountStatus = async (req, res, next) => {
 // 	next();
 
     try {
-        const response = await axios.get(process.env.CORE_TEST_URL+'/coretest/rest/accounts/default/status',{
+        const response = await axios.get(process.env.CORE_URL+'/rest/accounts/default/status',{
            headers: {
                Authorization: authheader,
              },

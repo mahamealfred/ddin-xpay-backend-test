@@ -6,7 +6,7 @@ class logsController {
     static async getLogs(req, res) {
         const authheader = req.headers.authorization
         try {
-            const response = await axios.get(process.env.CORE_TEST_URL + '/coretest/rest/accounts/default/history', {
+            const response = await axios.get(process.env.CORE_URL+'/rest/accounts/default/history', {
                 headers: {
                     Authorization: authheader,
                 },

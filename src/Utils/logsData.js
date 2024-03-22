@@ -13,7 +13,7 @@ const logsData = async(transactionId,thirdpart_status,description,amount,agent_n
     };
 
     //Insert into logs table
-     dbConnect.query('INSERT INTO logs SET ?', data, (error, results) => {
+     dbConnect.query('INSERT INTO transactions_status SET ?', data, (error, results) => {
         if (error) {
             console.error('Error inserting into logs: ' + error.message);
             //res.status(500).send('Error inserting into logs');
@@ -27,7 +27,7 @@ const updateLogs = async(transactionId,status,trxId)=>{
   
     //Insert into logs table
      dbConnect.query(
-        'UPDATE logs SET transactionId = ?, status = ? WHERE transaction_reference = ?',
+        'UPDATE transactions_status SET transactionId = ?, status = ? WHERE transaction_reference = ?',
         [transactionId, status, trxId],
         (error, results) => {  
           if (error) {

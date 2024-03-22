@@ -5,7 +5,7 @@ class authController{
     static async signIn(req, res) {
         const authheader = req.headers.authorization;
         try {
-     const response = await axios.get(process.env.CORE_TEST_URL+'/coretest/rest/members/me',{
+     const response = await axios.get(process.env.CORE_URL+'/rest/members/me',{
         headers: {
             Authorization: authheader,
           },
@@ -32,9 +32,9 @@ class authController{
                         district: response.data.customValues[5].value,
                         sector: response.data.customValues[6].value,
                         agentCategory: response.data.customValues[10].value,
-                        agentFloatAccountId: "125",
-                        agentInstantCommissionAccountId: "126",
-                        agentDelayedCommissionAccountId: "127"
+                        agentFloatAccountId: "",
+                        agentInstantCommissionAccountId: "",
+                        agentDelayedCommissionAccountId: ""
                         
                     }
                   });  

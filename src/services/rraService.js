@@ -5,77 +5,20 @@ const { updateLogs } = require("../Utils/logsData.js");
 
 dotenv.config();
 
-const ddinRraPaymentService = async (req, res,amount,referenceId,taxpayer, trxId, transferTypeId, toMemberId, description, currencySymbol, phoneNumber, authheader) => {
+const ddinRraPaymentService = async (req, res,amount, trxId, transferTypeId, toMemberId, description, currencySymbol, phoneNumber, authheader) => {
   
   let data = JSON.stringify({
     "toMemberId": toMemberId,
     "amount": amount,
     "transferTypeId": transferTypeId,
     "currencySymbol": currencySymbol,
-    "description": description,
-    "customValues": [
-        {
-        "internalName" : "tax_identification_number",
-        "fieldId" : "82",
-        "value" : "11986801789765"
-        },
-            {
-        "internalName" : "validation_id",
-        "fieldId" : "83",
-        "value" : "12345"
-            },
-            {
-        "internalName" : "tax_document_id",
-        "fieldId" : "84",
-        "value" :`${referenceId}`
-            },
-            {
-        "internalName" : "tax_center",
-        "fieldId" : "85",
-        "value" : "Kigali"
-            },
-            {
-        "internalName" : "declaration_date",
-        "fieldId" : "86",
-        "value" : "2024-02-09"
-            },
-            {
-        "internalName" : "full_payment_status",
-        "fieldId" : "87",
-        "value" : "Successful"
-            },
-            {
-        "internalName" : "tax_type",
-        "fieldId" : "88",
-        "value" : "Cleaning Fee"
-            },
-            {
-        "internalName" : "taxpayer",
-        "fieldId" : "89",
-        "value" : `${taxpayer}`
-            },
-            {
-        "internalName" : "createdat",
-        "fieldId" : "90",
-        "value" : "2024-02-09"
-            },
-            {
-        "internalName" : "updatedat",
-        "fieldId" : "91",
-        "value" : "2024-02-09"
-            },
-            {
-        "internalName" : "receiptNo",
-        "fieldId" : "92",
-        "value" : "DDIN123456789"
-            }
-        ]
+    "description": description
   });
   
   let config = {
     method: 'post',
     maxBodyLength: Infinity,
-    url: process.env.CORE_TEST_URL+'/coretest/rest/payments/confirmMemberPayment',
+    url: process.env.CORE_URL+'/rest/payments/confirmMemberPayment',
     headers: { 
       'Content-Type': 'application/json', 
       'Authorization':  `${authheader}`

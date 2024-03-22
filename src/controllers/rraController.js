@@ -8,7 +8,7 @@ class rraController{
 
   //new method
   static async rraEfashePayment(req, res) {
-    const { amount, trxId, transferTypeIdransferTypeId, toMemberId, description, currencySymbol, phoneNumber } = req.body;
+    const { amount, trxId, transferTypeId, toMemberId, description, currencySymbol, phoneNumber } = req.body;
     const authheader = req.headers.authorization;
     //agent name
     const authHeaderValue = authheader.split(' ')[1];
@@ -54,7 +54,7 @@ class rraController{
         const referenceId=12
         const  taxpayer='maahme alfred'
         logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
-        ddinRraPaymentService(req, res,referenceId,taxpayer, amount, trxId, transferTypeIdransferTypeId, toMemberId, description, currencySymbol, phoneNumber, authheader)
+        ddinRraPaymentService(req, res, amount, trxId, transferTypeId, toMemberId, description, currencySymbol, phoneNumber, authheader)
       
      }
 
@@ -147,7 +147,7 @@ class rraController{
           let config = {
             method: 'post',
             maxBodyLength: Infinity,
-            url: process.env.CORE_TEST_URL+'/coretest/rest/payments/confirmMemberPayment',
+            url: process.env.CORE_URL+'/rest/payments/confirmMemberPayment',
             headers: { 
               'Content-Type': 'application/json', 
               'Authorization': `${authheader}`
