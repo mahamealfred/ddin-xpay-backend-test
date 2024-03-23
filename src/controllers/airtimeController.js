@@ -1,16 +1,85 @@
 const dotenv = require("dotenv")
 const axios = require("axios");
 const generateAccessToken = require("../Utils/generateToken.js");
-const airtimePaymentService = require("../services/airtimeService.js");
 const ddinAirtimePaymentService = require("../services/airtimeService.js");
 const checkTansactionStatus = require("../Utils/checkEfasheTransactionStatus.js");
 const { logsData } = require("../Utils/logsData.js");
+const airtimePaymentService = require("../services/airtimeService.js");
 
 dotenv.config();
 
 class AirtimeController {
 
-  //new method
+
+  static async  ddinAirtimePayment(req,res){
+    
+    const { amount, trxId,transferTypeId, toMemberId, description, currencySymbol, phoneNumber } = req.body;
+    const authheader = req.headers.authorization;
+    const authHeaderValue = authheader.split(' ')[1];
+       const decodedValue = Buffer.from(authHeaderValue, 'base64').toString('ascii');
+       const agent_name=decodedValue.split(':')[0]
+       const service_name="Airtime"
+    let data = JSON.stringify({
+      "toMemberId": `${toMemberId}`,
+      "amount": `${amount}`,
+      "transferTypeId": `${transferTypeId}`,
+      "currencySymbol": currencySymbol,
+      "description": description
+  
+    });
+  
+    let config = {
+      method: 'post',
+      maxBodyLength: Infinity,
+      url: process.env.CORE_URL+'/rest/payments/confirmMemberPayment',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `${authheader}`
+      },
+      data: data
+    };
+  
+    try {
+      const response = await axios.request(config)
+      if (response.status === 200){
+       //call logs table
+       await airtimePaymentService(req, res, response, amount, description, trxId,phoneNumber,service_name,agent_name)
+      }
+    } catch (error) {
+      console.log("hhh:",error)
+      if (error.response.status === 401) {
+        return res.status(401).json({
+          responseCode: 401,
+          communicationStatus: "FAILED",
+          responseDescription: "Username and Password are required for authentication"
+        });
+      }
+      if (error.response.status === 400) {
+        return res.status(400).json({
+          responseCode: 400,
+          communicationStatus: "FAILED",
+          responseDescription: "Invalid Username or Password"
+        });
+      }
+      if (error.response.status === 404) {
+        return res.status(404).json({
+          responseCode: 404,
+          communicationStatus: "FAILED",
+          responseDescription: "Account Not Found"
+        });
+      }
+      return res.status(500).json({
+        responseCode: 500,
+        communicationStatus: "FAILED",
+        error: error.message,
+      });
+    }
+  
+  }
+  
+  
+
+  //previous 
   static async airTimePayment(req, res) {
     const { amount, trxId,transferTypeId, toMemberId, description, currencySymbol, phoneNumber } = req.body;
     const authheader = req.headers.authorization;
