@@ -4,79 +4,82 @@ const generateAccessToken =require("../Utils/generateToken.js");
 const electricityPaymentService =require("../services/electricityService.js");
 const { logsData } = require("../Utils/logsData.js");
 const ddinElectricityPaymentService = require("../services/electricityService.js");
+const checkTansactionStatus = require("../Utils/checkEfasheTransactionStatus.js");
 
 dotenv.config();
 
 
 class electricityController{
-
-  //new method
-  static async electricityEfashePayment(req, res) {
-    const { amount, trxId, transferTypeIdransferTypeId, toMemberId, description, currencySymbol, phoneNumber } = req.body;
-    const authheader = req.headers.authorization;
-    //agent name
-    const authHeaderValue = authheader.split(' ')[1];
-    const decodedValue = Buffer.from(authHeaderValue, 'base64').toString('ascii');
-    const agent_name = decodedValue.split(':')[0]
-    const accessToken = await generateAccessToken();
-    if (!accessToken) {
-      return res.status(401).json({
-        responseCode: 401,
-        communicationStatus: "FAILED",
-        responseDescription: "A Token is required for authentication"
-      });
-    }
-    let data = JSON.stringify({
-      trxId: trxId,
-      customerAccountNumber: phoneNumber,
-      amount: amount,
-      verticalId: "electricity", 
-      deliveryMethodId: "sms",
-      deliverTo: "string",
-      callBack: "string"
-      
-    }
-    );
-    let config = {
-      method: 'post',
-      maxBodyLength: Infinity,
-      url: process.env.EFASHE_URL + '/rw/v2/vend/execute',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken.replace(/['"]+/g, '')}`
-      },
-      data: data
-    };
-
-    try {
-      const resp = await axios.request(config)
-      if (resp.status === 202) {
-      //   //save in logs table
-        const transactionId = ""
-       const thirdpart_status = resp.status
-        const service_name = "Electricity Payment"
-        const status = "Incomplete"
-        logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
-        ddinElectricityPaymentService(req, res, resp, amount, trxId, transferTypeIdransferTypeId, toMemberId, description, currencySymbol, phoneNumber, authheader)
-      
-      }
-
-    } catch (error) {
-      if (error.response.status === 400) {
-        return res.status(400).json({
-          responseCode: 400,
-          communicationStatus: "FAILED",
-          responseDescription: error.response.data.msg
-        });
-      }
-      return res.status(500).json({
-        responseCode: 500,
-        communicationStatus: "FAILED",
-        error: error.response.data.msg
-      });
-    }
+//new method
+static async electricityEfashePayment(req, res) {
+  const { amount, trxId,transferTypeId, toMemberId, description, currencySymbol, phoneNumber } = req.body;
+  const authheader = req.headers.authorization;
+  //agent name
+  const authHeaderValue = authheader.split(' ')[1];
+  const decodedValue = Buffer.from(authHeaderValue, 'base64').toString('ascii');
+  const agent_name = decodedValue.split(':')[0]
+  const accessToken = await generateAccessToken();
+  if (!accessToken) {
+    return res.status(401).json({
+      responseCode: 401,
+      communicationStatus: "FAILED",
+      responseDescription: "A Token is required for authentication"
+    });
   }
+  let data = JSON.stringify({
+    trxId: trxId,
+    customerAccountNumber: phoneNumber,
+    amount: amount,
+    verticalId: "electricity",
+    deliveryMethodId: "sms",
+    deliverTo: "string",
+    callBack: "string"
+  }
+  );
+  let config = {
+    method: 'post',
+    maxBodyLength: Infinity,
+    url: process.env.EFASHE_URL + '/rw/v2/vend/execute',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${accessToken.replace(/['"]+/g, '')}`
+    },
+    data: data
+  };
+
+  try {
+   const resp = await axios.request(config)
+   
+    if (resp.status === 202) {
+    //   //save in logs table
+      const transactionId = ""
+     const thirdpart_status = 202
+      const service_name = "Electricity"
+      const status = "Incomplete"
+      console.log("desss:",description)
+    logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
+    ddinElectricityPaymentService(req, res, amount, trxId, transferTypeId, toMemberId, description, currencySymbol, phoneNumber, authheader)
+    
+  }
+
+  } catch (error) {
   
+    // if (error.response.status === 400) {
+    //   return res.status(400).json({
+    //     responseCode: 400,
+    //     communicationStatus: "FAILED",
+    //     responseDescription: error.response.data.error
+    //   });
+    // }
+    return res.status(500).json({
+      responseCode: 500,
+      communicationStatus: "FAILED",
+      responseDescription: error.message
+    });
+  }
+}
+
+
     static async ValidateCustomerMeterNumber(req, res) {
       const accessToken = await generateAccessToken();
       const {customerAccountNumber}=req.body
@@ -119,10 +122,14 @@ class electricityController{
                     pdtStatusId: response.data.data.pdtStatusId,
                     verticalId: response.data.data.verticalId,
                     customerAccountNumber: response.data.data.customerAccountNumber,
-                    svcProviderName:response.data.data. svcProviderName,
+                    svcProviderName: response.data.data.svcProviderName,
                     vendUnitId: response.data.data.vendUnitId,
-                    vendMin:response.data.data.vendMin,
+                    vendMin: response.data.data.vendMin,
                     vendMax: response.data.data.vendMax,
+                    selectAmount: response.data.data.selectAmount,
+                    localStockMgt: response.data.data.localStockMgt,
+                    stockedPdts: response.data.data.stockedPdts,
+                    stock: response.data.data.stock,
                     trxResult: response.data.data.trxResult,
                     trxId: response.data.data.trxId,
                     availTrxBalance: response.data.data.availTrxBalance

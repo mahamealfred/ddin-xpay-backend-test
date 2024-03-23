@@ -33,7 +33,7 @@ const ddinAirtimePaymentService = async (req, res,resp,amount, trxId, transferTy
 //call logs table
 const transactionId=response.data.id
 const status="Complete";
-updateLogs(transactionId,status, trxId)
+await updateLogs(transactionId,status, trxId)
       return res.status(200).json({
         responseCode: 200,
         communicationStatus: "SUCCESS",

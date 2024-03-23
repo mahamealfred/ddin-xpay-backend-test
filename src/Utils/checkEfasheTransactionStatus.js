@@ -1,39 +1,63 @@
 const dbConnect = require("../db/config");
 const dotenv = require("dotenv")
 const axios = require("axios");
+const generateAccessToken = require("./generateToken");
 
-const checkTansactionStatus= async(req,res,trxId,authheader)=>{
+const checkTansactionStatus= async(req,res,trxId)=>{
+  const accessToken = await generateAccessToken();
+      // let config = {
+      //   method: 'get',
+      //   maxBodyLength: Infinity,
+      //   url: `https://sb-api.efashe.com/rw/v2/vend/${trxId}/status`,
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     'Authorization': `Bearer ${accessToken.replace(/['"]+/g, '')}`
+      //   }
+      // };
     
+      // const responseData=await  axios.request(config)
+      // .then((response) => {
+        
+      //   const token=JSON.stringify(response.data.data)
+      //   console.log("status respo:",JSON.stringify(response.data.data));
+      //   return token
+       
+      // })
+      // .catch((error) => {
+      //   return JSON.stringify({
+      //       responseCode:error.response.status,
+      //       communicationStatus:"FAILED",
+      //       error: error.message,
+      //     });  
+      // });
+      // return responseData;
       let config = {
-        method: 'post',
+        method: 'get',
         maxBodyLength: Infinity,
-        url: `https://sb-api.efashe.com/rw/v2/vend/8a5b228e-87a3-4710-8892-9737792b94dc/status`,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `${authheader}`
+        url: `https://sb-api.efashe.com/rw/v2/vend/${trxId}/status`,
+        headers: { 
+          'Authorization': `Bearer ${accessToken.replace(/['"]+/g, '')}`
         }
       };
-    
-      try {
-        const response = await axios.request(config)
-        if (response.status === 200) {
-          return res.status(200).json({
-            responseCode: 200,
-            communicationStatus: "SUCCESS",
-            codeDescription: "dETAILS",
-            responseDescription: "DETAILS",
-            data: response.data
-          });
-        }
-    
-      } catch (error) {
-    
-        return res.status(500).json({
-          responseCode: 500,
-          communicationStatus: "FAILED",
-          error: error.message,
-        });
-      }
+      
+      const responseData=await  axios.request(config)
+      .then((response) => {
+       
+        const token=JSON.stringify(response.data.data)
+        return token
+      })
+      .catch((error) => {
+        console.log(error);
+          return JSON.stringify({
+            responseCode:error.response.status,
+            communicationStatus:"FAILED",
+            error: error.message,
+          });  
+      });
+      return responseData;
+      
+      
+      
     };
 
 module.exports= checkTansactionStatus

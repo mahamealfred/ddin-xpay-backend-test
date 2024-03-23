@@ -53,7 +53,7 @@ class AirtimeController {
       //   //save in logs table
         const transactionId = ""
        const thirdpart_status = resp.status
-        const service_name = "Airtime Payment"
+        const service_name = "Airtime"
         const status = "Incomplete"
         logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
         ddinAirtimePaymentService(req, res, resp, amount, trxId, transferTypeId, toMemberId, description, currencySymbol, phoneNumber, authheader)

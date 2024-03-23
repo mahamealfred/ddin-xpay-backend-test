@@ -4,21 +4,14 @@ const generateAccessToken =require("../Utils/generateToken.js");
 const { updateLogs } = require("../Utils/logsData.js");
 
 dotenv.config();
-const  ddinElectricityPaymentService = async (req, res,resp,amount, trxId, transferTypeId, toMemberId, description, currencySymbol, phoneNumber, authheader) => {
+const  ddinElectricityPaymentService = async (req, res,amount, trxId, transferTypeId, toMemberId, description, currencySymbol, phoneNumber, authheader) => {
   
   let data = JSON.stringify({
     "toMemberId": toMemberId,
     "amount": amount,
     "transferTypeId": transferTypeId,
     "currencySymbol": currencySymbol,
-    "description": description,
-    "customValues": [
-      {
-        "internalName": "meterNumber",
-        "fieldId": "117",
-        "value": `${phoneNumber}`
-      }
-    ]
+    "description": description
   });
   
   let config = {
@@ -54,7 +47,6 @@ updateLogs(transactionId,status, trxId)
     }
 
   } catch (error) {
-    //console.log("error :",error.response)
     if (error.response.status === 401) {
       return res.status(401).json({
         responseCode: 401,
