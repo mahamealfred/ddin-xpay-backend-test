@@ -20,6 +20,6 @@ router.post('/airtime/validate-vend',airtimeController.ValidatePhoneNumber);
 router.post('/airtime/payment',CheckAccountStatus,airtimeController.airTimePayment);
 
 //BULK SMS 
-router.post('/pindo-bulksms/payment',CheckAccountStatus,bulkSmsController.pindoBulkSMSPayment);
+router.post('/pindo-bulksms/payment',CheckAccountStatus,bulkSmsController.ddinPindoBulkSmsPayment);
 
 module.exports= router
