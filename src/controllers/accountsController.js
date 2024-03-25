@@ -28,11 +28,7 @@ class accountsController{
                     }
                   });  
             }
-                return res.status(500).json({
-                    responseCode: 500,
-                    communicationStatus:"FAILED",
-                    responseDescription: "Something went wrong, Please try again later.",
-                  });
+              
             
         } catch (error) {
             if(error.response.status===401){

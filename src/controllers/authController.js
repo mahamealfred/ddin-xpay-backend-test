@@ -1,5 +1,6 @@
 const dotenv =require("dotenv")
 const axios =require("axios");
+const accountID = require("../Utils/accountID");
 dotenv.config();
 class authController{
     static async signIn(req, res) {
@@ -7,14 +8,31 @@ class authController{
         try {
      const response = await axios.get(process.env.CORE_URL+'/rest/members/me',{
         headers: {
-            Authorization: authheader,
+            Authorization: authheader
           },
           withCredentials: true,
             });
             if(response.status===200){
+                const data=await accountID(req,res,authheader)
+                     let agentFloatAccountId=""
+                    let  agentInstantCommissionAccountId=""
+                    let   agentDelayedCommissionAccountId=""
+                data.forEach(account => {
+                
+                    if(account.account.type.name ==="Agent Delayed Commission A/C"){
+                        agentDelayedCommissionAccountId=(account.account.id).toString()
+                    }
+                    else if(account.account.type.name === "Agent Float A/C"){
+                        agentFloatAccountId=(account.account.id).toString()
+                    }else{
+                        agentInstantCommissionAccountId=(account.account.id).toString()
+                    }
+                });
+                // console.log("true response:",data)
                 return res.status(200).json({
                     responseCode: 200,
-                    communicationStatus:"SUCCESS",
+                    communicationStatus:"EXIST",
+                    codeDescription: "SUCCESS",
                     responseDescription: "Successfully logged",
                     data:{
                         id:response.data.id,
@@ -32,18 +50,15 @@ class authController{
                         district: response.data.customValues[5].value,
                         sector: response.data.customValues[6].value,
                         agentCategory: response.data.customValues[10].value,
-                        agentFloatAccountId: "",
-                        agentInstantCommissionAccountId: "",
-                        agentDelayedCommissionAccountId: ""
+                       // account:data,
+                        agentFloatAccountId: agentFloatAccountId,
+                        agentInstantCommissionAccountId: agentInstantCommissionAccountId,
+                        agentDelayedCommissionAccountId: agentDelayedCommissionAccountId
                         
                     }
                   });  
             }
-                return res.status(500).json({
-                    responseCode: 500,
-                    communicationStatus:"FAILED",
-                    responseDescription: "Something went wrong, Please try again later.",
-                  });
+                
             
         } catch (error) {
             if(error.response.status===401){

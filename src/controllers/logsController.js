@@ -60,7 +60,7 @@ class logsController {
     static async getLogsFromMysql(req, res) {
         //  const authheader = req.headers.authorization;
         try {
-            dbConnect.query('SELECT * FROM logs', (error, results) => {
+            dbConnect.query('SELECT * FROM transactions_status', (error, results) => {
                 if (error) {
                     return res.status(500).json({
                         responseCode: 500,

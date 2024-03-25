@@ -42,11 +42,11 @@ class AirtimeController {
     try {
       const response = await axios.request(config)
       if (response.status === 200){
-       //call logs table
+       //call third part
        await airtimePaymentService(req, res, response, amount, description, trxId,phoneNumber,service_name,agent_name)
       }
     } catch (error) {
-      console.log("hhh:",error)
+      
       if (error.response.status === 401) {
         return res.status(401).json({
           responseCode: 401,
