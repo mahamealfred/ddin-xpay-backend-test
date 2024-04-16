@@ -141,6 +141,13 @@ static async ddinElectricityPayment(req,res){
                 });
           
       } catch (error) {
+        if(error.response.status===400){
+          return res.status(400).json({
+              responseCode: 400,
+              communicationStatus:"FAILED",
+              responseDescription: error.response.data.msg
+            }); 
+      }
       
           if(error.response.status===404){
               return res.status(404).json({

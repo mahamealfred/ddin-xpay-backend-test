@@ -20,7 +20,7 @@ const ddinRraPaymentService = async (req, res, response, amount, description, tr
     trxId: trxId,
     customerAccountNumber: phoneNumber,
     amount: amount,
-    verticalId: "electricity",
+    verticalId: "tax",
     deliveryMethodId: "sms",
     deliverTo: "string",
     callBack: "string"

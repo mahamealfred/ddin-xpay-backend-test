@@ -75,7 +75,6 @@ class rraController{
     static async ValidateRRAId(req, res) {
       const accessToken = await generateAccessToken();
       const {customerAccountNumber}=req.body
-
       if(!accessToken){
         return res.status(401).json({
           responseCode: 401,

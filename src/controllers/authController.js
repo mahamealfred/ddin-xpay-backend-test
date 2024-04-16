@@ -18,7 +18,6 @@ class authController{
                     let  agentInstantCommissionAccountId=""
                     let   agentDelayedCommissionAccountId=""
                 data.forEach(account => {
-                
                     if(account.account.type.name ==="Agent Delayed Commission A/C"){
                         agentDelayedCommissionAccountId=(account.account.id).toString()
                     }
@@ -28,6 +27,53 @@ class authController{
                         agentInstantCommissionAccountId=(account.account.id).toString()
                     }
                 });
+                let phone=""
+                let country=""
+                let nationalId=""
+                let birthday=""
+                let gender=""
+                let province=""
+                let  district=""
+                let sector=""
+                let agentCategory=""
+                    //custome values
+                    response.data.customValues.forEach(item=>{
+                        if(item.internalName === "mobilePhone"){
+                            phone=item.value
+                        }
+                        else if(item.internalName === "country"){
+                            country=item.value
+                        }
+                        else if(item.internalName === "national_id"){
+                            nationalId=item.value
+                        }
+                        else if(item.internalName === "gender"){
+                            gender=item.value
+                        }
+                        else if(item.internalName === "area"){
+                            province=item.value
+                        }
+                        else if(item.internalName === "district"){
+                            district=item.value
+                        }
+                        else if(item.internalName==="sector"){
+                            sector=item.value
+                        }
+                        else if(item.internalName==="agent_category"){
+                           agentCategory=item.value
+                        }
+                    })
+                    const currentDate = new Date();
+
+                    const year = currentDate.getFullYear();
+                    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+                    const day = String(currentDate.getDate()).padStart(2, '0');
+                    const hours = String(currentDate.getHours()).padStart(2, '0');
+                    const minutes = String(currentDate.getMinutes()).padStart(2, '0');
+                    const seconds = String(currentDate.getSeconds()).padStart(2, '0');
+                    
+                    const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+            
                 // console.log("true response:",data)
                 return res.status(200).json({
                     responseCode: 200,
@@ -35,27 +81,29 @@ class authController{
                     codeDescription: "SUCCESS",
                     responseDescription: "Successfully logged",
                     data:{
-                        id:response.data.id,
+                        id:response.data.id.toString(),
                         name:response.data.name,
                         email:response.data.email,
-                        phone: response.data.customValues[0].value,
+                        phone,
                         username: response.data.username,
                         image: null,
-                        country: response.data.customValues[3].value,
-                        nationalId: response.data.customValues[1].value,
+                        country,
+                        nationalId,
                         birthday: response.data.customValues[8].value,
-                        gender: response.data.customValues[7].value,
+                        gender,
                         city: null,
-                        province: response.data.customValues[4].value,
-                        district: response.data.customValues[5].value,
-                        sector: response.data.customValues[6].value,
-                        agentCategory: response.data.customValues[10].value,
+                        province,
+                        district,
+                        sector,
+                        agentCategory,
                        // account:data,
                         agentFloatAccountId: agentFloatAccountId,
                         agentInstantCommissionAccountId: agentInstantCommissionAccountId,
                         agentDelayedCommissionAccountId: agentDelayedCommissionAccountId
                         
-                    }
+                    },
+                    metadata:null,
+                    responseDate:formattedDate
                   });  
             }
                 

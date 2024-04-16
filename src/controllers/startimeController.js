@@ -8,7 +8,7 @@ const airtimePaymentService = require("../services/airtimeService.js");
 
 dotenv.config();
 
-class AirtimeController {
+class Startimeontroller {
 
 
   static async  ddinAirtimePayment(req,res){
@@ -79,74 +79,9 @@ class AirtimeController {
   
   
 
-  //previous 
-  static async airTimePayment(req, res) {
-    const { amount, trxId,transferTypeId, toMemberId, description, currencySymbol, phoneNumber } = req.body;
-    const authheader = req.headers.authorization;
-    //agent name
-    const authHeaderValue = authheader.split(' ')[1];
-    const decodedValue = Buffer.from(authHeaderValue, 'base64').toString('ascii');
-    const agent_name = decodedValue.split(':')[0]
-    const accessToken = await generateAccessToken();
-    if (!accessToken) {
-      return res.status(401).json({
-        responseCode: 401,
-        communicationStatus: "FAILED",
-        responseDescription: "A Token is required for authentication"
-      });
-    }
-    let data = JSON.stringify({
-      trxId: trxId,
-      customerAccountNumber: phoneNumber,
-      amount: amount,
-      verticalId: "airtime",
-      deliveryMethodId: "direct_topup",
-      deliverTo: "string",
-      callBack: "string"
-    }
-    );
-    let config = {
-      method: 'post',
-      maxBodyLength: Infinity,
-      url: process.env.EFASHE_URL + '/rw/v2/vend/execute',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken.replace(/['"]+/g, '')}`
-      },
-      data: data
-    };
-
-    try {
-      const resp = await axios.request(config)
-      if (resp.status === 202) {
-      //   //save in logs table
-        const transactionId = ""
-       const thirdpart_status = resp.status
-        const service_name = "Airtime"
-        const status = "Incomplete"
-        logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
-        ddinAirtimePaymentService(req, res, resp, amount, trxId, transferTypeId, toMemberId, description, currencySymbol, phoneNumber, authheader)
-      
-      }
-
-    } catch (error) {
-      if (error.response.status === 400) {
-        return res.status(400).json({
-          responseCode: 400,
-          communicationStatus: "FAILED",
-          responseDescription: error.response.data.msg
-        });
-      }
-      return res.status(500).json({
-        responseCode: 500,
-        communicationStatus: "FAILED",
-        error: error.response.data.msg
-      });
-    }
-  }
-
+  
  
-  static async ValidatePhoneNumber(req, res) {
+  static async ValidateStartimeNumber(req, res) {
     const accessToken = await generateAccessToken();
     const {customerAccountNumber} = req.body
 
@@ -159,7 +94,7 @@ class AirtimeController {
     }
     // console.log("accesst:",accessToken.replace(/['"]+/g, ''))
     let data = JSON.stringify({
-      verticalId: "airtime",
+      verticalId: "startime",
       customerAccountNumber: customerAccountNumber
     }
     );
@@ -241,4 +176,4 @@ class AirtimeController {
   }
 
 }
-module.exports = AirtimeController;
+module.exports = Startimeontroller;
