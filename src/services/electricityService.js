@@ -61,10 +61,8 @@ const ddinElectricityPaymentService = async (req, res, response, amount, descrip
           }
         });
       }
-     
-     
+      
     }
-
 
   } catch (error) {
     let transactionId = response.data.id
@@ -83,7 +81,7 @@ const ddinElectricityPaymentService = async (req, res, response, amount, descrip
     return res.status(500).json({
       responseCode: 500,
       communicationStatus: "FAILED",
-      error: error.response.data.msg,
+      error: error.response.data.msg
     });
   }
 };

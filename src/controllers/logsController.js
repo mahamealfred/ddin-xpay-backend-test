@@ -16,7 +16,6 @@ class logsController {
                
                 let transactions=[]
                response.data.elements.forEach(element => {
-             
                 transactions.push({
                     id: element.id.toString(),
                     date: element.date,
@@ -79,7 +78,6 @@ class logsController {
     static async TransactionsByID(req, res) {
         const authheader = req.headers.authorization
         const id=req.params.id
-        console.log("transaction Id:",id)
         try {
             const response = await axios.get(process.env.CORE_URL+'/rest/accounts/default/history', {
                 headers: {

@@ -6,6 +6,7 @@ const bulkSmsController=require("../controllers/bulkSmsController.js");
 const CheckAccountStatus = require("../middlewares/checkAccountStatus.js");
 const airtimeController =require("../controllers/airtimeController.js");
 const checkEfashePayment = require("../services/checkEfashePayment.js");
+const Startimeontroller = require("../controllers/startimeController.js");
 
 const router=express.Router();
 //RRA Payament
@@ -22,6 +23,10 @@ router.post('/airtime/payment',CheckAccountStatus,airtimeController.ddinAirtimeP
 
 //BULK SMS 
 router.post('/pindo-bulksms/payment',CheckAccountStatus,bulkSmsController.ddinPindoBulkSmsPayment);
+
+//STARTIME 
+router.post('/startime/validate-vend',Startimeontroller.ValidateStartimeNumber);
+router.post('/startime/payment',CheckAccountStatus,airtimeController.ddinAirtimePayment);
 
 //payament status
 router.get("/check-efashe-transaction/status",checkEfashePayment)
