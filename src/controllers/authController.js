@@ -96,7 +96,6 @@ class authController{
                         district,
                         sector,
                         agentCategory,
-                       // account:data,
                         agentFloatAccountId: agentFloatAccountId,
                         agentInstantCommissionAccountId: agentInstantCommissionAccountId,
                         agentDelayedCommissionAccountId: agentDelayedCommissionAccountId

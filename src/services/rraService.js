@@ -46,7 +46,7 @@ const ddinRraPaymentService = async (req, res, response, amount, description, tr
       let thirdpart_status = resp.status
       let status = "Complete"
       logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
-      Chargeback(transactionId)
+     
       return res.status(200).json({
         responseCode: 200,
         communicationStatus: "SUCCESS",
@@ -66,6 +66,7 @@ const ddinRraPaymentService = async (req, res, response, amount, description, tr
     let thirdpart_status = error.response.status
     let status = "Incomplete"
     logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
+    Chargeback(transactionId)
     if (error.response.status === 400) {
       return res.status(400).json({
         responseCode: 400,
