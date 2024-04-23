@@ -15,7 +15,7 @@ router.post('/rra/payment',CheckAccountStatus,rraController.rraPayment);
 
 //ELECTRICITY Payament
 router.post('/electricity/validate-vend',electricityController.ValidateCustomerMeterNumber);
-router.post('/electricity/payment',CheckAccountStatus,electricityController.ddinElectricityPayment);
+router.post('/electricity/payment',CheckAccountStatus,electricityController.ddinElectricityPaymentNewMethode);
 
 //AIRTIME PAYMENT
 router.post('/airtime/validate-vend',airtimeController.ValidatePhoneNumber);

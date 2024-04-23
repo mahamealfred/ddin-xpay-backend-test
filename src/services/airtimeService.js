@@ -21,8 +21,8 @@ const airtimePaymentService = async (req, res, response, amount, description, tr
     amount: amount,
     verticalId: "airtime",
     deliveryMethodId: "direct_topup",
-    deliverTo: "string",
-    callBack: "string"
+    //deliverTo: "string",
+    //callBack: "string"
   }
   );
   let config = {

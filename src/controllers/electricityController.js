@@ -5,12 +5,88 @@ const electricityPaymentService =require("../services/electricityService.js");
 const { logsData } = require("../Utils/logsData.js");
 const ddinElectricityPaymentService = require("../services/electricityService.js");
 const checkTansactionStatus = require("../Utils/checkEfasheTransactionStatus.js");
+const callPollEndpoint = require("../Utils/checkEfasheTransactionStatus.js");
+const ddinElectricityPaymentServiceNewMethod = require("../services/electricityService.js");
 
 dotenv.config();
 
 
 class electricityController{
+//new methode
+static async ddinElectricityPaymentNewMethode(req,res){
+  const { amount, trxId,transferTypeId, toMemberId, description, currencySymbol, phoneNumber } = req.body;
+    const authheader = req.headers.authorization;
+    const authHeaderValue = authheader.split(' ')[1];
+       const decodedValue = Buffer.from(authHeaderValue, 'base64').toString('ascii');
+       const agent_name=decodedValue.split(':')[0]
+       const service_name="Electricity"
+       const accessToken = await generateAccessToken();
+  if (!accessToken) {
+    return res.status(401).json({
+      responseCode: 401,
+      communicationStatus: "FAILED",
+      responseDescription: "A Token is required for authentication"
+    });
+  }
+  let data = JSON.stringify({
+    trxId: trxId,
+    customerAccountNumber: phoneNumber,
+    amount: amount,
+    verticalId: "electricity",
+    deliveryMethodId: "sms",
+   // deliverTo: "string",
+   // callBack: "string"
+  }
+  );
+  let config = {
+    method: 'post',
+    maxBodyLength: Infinity,
+    url: process.env.EFASHE_URL + '/rw/v2/vend/execute',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${accessToken.replace(/['"]+/g, '')}`
+    },
+    data: data
+  };
 
+  try {
+    const resp = await axios.request(config)
+    if (resp.status === 202) {
+      const responseData=await callPollEndpoint(resp)
+      let transactionId = ""
+      let thirdpart_status = resp.status
+      let status = "Incomplete"
+      logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
+      ddinElectricityPaymentServiceNewMethod(req,res,resp,responseData,amount,toMemberId,trxId,phoneNumber,transferTypeId,currencySymbol,description)
+      
+    }
+
+  } catch (error) {
+    let transactionId = response.data.id
+    let thirdpart_status = error.response.status
+    let status = "Incomplete"
+    logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
+    if (error.response.status === 400) {
+      return res.status(400).json({
+        responseCode: 400,
+        communicationStatus: "FAILED",
+        responseDescription: error.response.data.msg
+
+      });
+    }
+
+    return res.status(500).json({
+      responseCode: 500,
+      communicationStatus: "FAILED",
+      error: error.response.data.msg
+    });
+  }
+   
+  }
+
+
+
+  //previous methode
 static async ddinElectricityPayment(req,res){
   const { amount, trxId,transferTypeId, toMemberId, description, currencySymbol, phoneNumber } = req.body;
     const authheader = req.headers.authorization;

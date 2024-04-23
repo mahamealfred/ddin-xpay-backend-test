@@ -22,8 +22,8 @@ const ddinRraPaymentService = async (req, res, response, amount, description, tr
     amount: amount,
     verticalId: "tax",
     deliveryMethodId: "sms",
-    deliverTo: "string",
-    callBack: "string"
+    //deliverTo: "string",
+   // callBack: "string"
   }
   );
   let config = {

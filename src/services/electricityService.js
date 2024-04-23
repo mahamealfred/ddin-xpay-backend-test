@@ -6,12 +6,85 @@ const { response } = require("express");
 const callPollEndpoint = require("../Utils/checkEfasheTransactionStatus.js");
 
 dotenv.config();
+//new methode
+const ddinElectricityPaymentServiceNewMethod = async (
+  req,res,resp,responseData,amount,toMemberId,trxId,phoneNumber,transferTypeId,currencySymbol,description
+) => {
+  const authheader = req.headers.authorization;
+  let data = JSON.stringify({
+    "toMemberId": `${toMemberId}`,
+    "amount": `${amount}`,
+    "transferTypeId": `${transferTypeId}`,
+    "currencySymbol": currencySymbol,
+    "description": description
+
+  });
+
+  let config = {
+    method: 'post',
+    maxBodyLength: Infinity,
+    url: process.env.CORE_URL+'/rest/payments/confirmMemberPayment',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `${authheader}`
+    },
+    data: data
+  };
+
+  try {
+    const response = await axios.request(config)
+    if (response.status === 200){
+      let transactionId=response.data.transactionId
+      let status="Complete"
+    updateLogs(trxId,status,transactionId)
+      return res.status(200).json({
+        responseCode: 200,
+        communicationStatus: "SUCCESS",
+        responseDescription: "Payment has been processed! Details of transactions are included below",
+        data: {
+          transactionId: response.data.id,
+          amount: amount,
+          description: description,
+          spVendInfo:responseData.data.data.spVendInfo
+        }
+      });
+    
+    }
+  } catch (error) {
+    
+    if (error.response.status === 401) {
+      return res.status(401).json({
+        responseCode: 401,
+        communicationStatus: "FAILED",
+        responseDescription: "Username and Password are required for authentication"
+      });
+    }
+    if (error.response.status === 400) {
+      return res.status(400).json({
+        responseCode: 400,
+        communicationStatus: "FAILED",
+        responseDescription: "Invalid Username or Password"
+      });
+    }
+    if (error.response.status === 404) {
+      return res.status(404).json({
+        responseCode: 404,
+        communicationStatus: "FAILED",
+        responseDescription: "Account Not Found"
+      });
+    }
+    return res.status(500).json({
+      responseCode: 500,
+      communicationStatus: "FAILED",
+      error: error.message,
+    });
+  }
+};
 
 
-
+//previoys method
 const ddinElectricityPaymentService = async (req, res, response, amount, description, trxId, phoneNumber, service_name, agent_name) => {
   const accessToken = await generateAccessToken();
-
   if (!accessToken) {
     return res.status(401).json({
       responseCode: 401,
@@ -25,8 +98,8 @@ const ddinElectricityPaymentService = async (req, res, response, amount, descrip
     amount: amount,
     verticalId: "electricity",
     deliveryMethodId: "sms",
-    deliverTo: "string",
-    callBack: "string"
+   // deliverTo: "string",
+   // callBack: "string"
   }
   );
   let config = {
@@ -86,4 +159,4 @@ const ddinElectricityPaymentService = async (req, res, response, amount, descrip
   }
 };
 
-module.exports = ddinElectricityPaymentService 
+module.exports = ddinElectricityPaymentServiceNewMethod
