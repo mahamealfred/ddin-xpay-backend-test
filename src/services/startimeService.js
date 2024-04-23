@@ -8,7 +8,7 @@ const Chargeback = require("../Utils/chargback.js");
 dotenv.config();
 
 
-const ddinRraPaymentService = async (req, res, response, amount, description, trxId, phoneNumber, service_name, agent_name) => {
+const ddinStartimePaymentService = async (req, res, response, amount, description, trxId, phoneNumber, service_name, agent_name) => {
   const accessToken = await generateAccessToken();
   if (!accessToken) {
     return res.status(401).json({
@@ -21,7 +21,7 @@ const ddinRraPaymentService = async (req, res, response, amount, description, tr
     trxId: trxId,
     customerAccountNumber: phoneNumber,
     amount: amount,
-    verticalId: "tax",
+    verticalId: "paytv",
     deliveryMethodId: "sms",
     //deliverTo: "string",
    // callBack: "string"
@@ -83,4 +83,4 @@ const ddinRraPaymentService = async (req, res, response, amount, description, tr
   }
 };
 
-module.exports = ddinRraPaymentService 
+module.exports = ddinStartimePaymentService 

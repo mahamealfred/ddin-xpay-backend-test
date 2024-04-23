@@ -5,20 +5,21 @@ const ddinAirtimePaymentService = require("../services/airtimeService.js");
 const checkTansactionStatus = require("../Utils/checkEfasheTransactionStatus.js");
 const { logsData } = require("../Utils/logsData.js");
 const airtimePaymentService = require("../services/airtimeService.js");
+const ddinStartimePaymentService = require("../services/startimeService.js");
 
 dotenv.config();
 
-class Startimeontroller {
+class StartimeController {
 
 
-  static async  ddinAirtimePayment(req,res){
+  static async  ddinStartimePayment(req,res){
     
     const { amount, trxId,transferTypeId, toMemberId, description, currencySymbol, phoneNumber } = req.body;
     const authheader = req.headers.authorization;
     const authHeaderValue = authheader.split(' ')[1];
        const decodedValue = Buffer.from(authHeaderValue, 'base64').toString('ascii');
        const agent_name=decodedValue.split(':')[0]
-       const service_name="Airtime"
+       const service_name="Startime"
     let data = JSON.stringify({
       "toMemberId": `${toMemberId}`,
       "amount": `${amount}`,
@@ -43,7 +44,7 @@ class Startimeontroller {
       const response = await axios.request(config)
       if (response.status === 200){
        //call third part
-       await airtimePaymentService(req, res, response, amount, description, trxId,phoneNumber,service_name,agent_name)
+       await ddinStartimePaymentService(req, res, response, amount, description, trxId,phoneNumber,service_name,agent_name)
       }
     } catch (error) {
       
@@ -94,7 +95,7 @@ class Startimeontroller {
     }
     // console.log("accesst:",accessToken.replace(/['"]+/g, ''))
     let data = JSON.stringify({
-      verticalId: "startime",
+      verticalId: "paytv",
       customerAccountNumber: customerAccountNumber
     }
     );
@@ -176,4 +177,4 @@ class Startimeontroller {
   }
 
 }
-module.exports = Startimeontroller;
+module.exports = StartimeController;

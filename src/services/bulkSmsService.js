@@ -3,6 +3,7 @@ const axios = require("axios");
 const generateAccessToken = require("../Utils/generateToken.js");
 const dbConnect = require("../db/config.js");
 const { logsData } = require("../Utils/logsData.js");
+const Chargeback = require("../Utils/chargback.js");
 
 
 
@@ -61,6 +62,7 @@ const bulkSmsPaymentService = async (req, res, response, amount, recipients, des
     let trxId=""
     let status="Incomplete"
    logsData(transactionId,thirdpart_status,description,amount,agent_name,status,service_name,trxId)
+   Chargeback(transactionId)
     if (error.response.status === 400) {
       return res.status(400).json({
         responseCode: 400,

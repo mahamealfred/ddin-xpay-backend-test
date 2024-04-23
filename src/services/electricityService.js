@@ -16,7 +16,7 @@ const ddinElectricityPaymentServiceNewMethod = async (
     "amount": `${amount}`,
     "transferTypeId": `${transferTypeId}`,
     "currencySymbol": currencySymbol,
-    "description": description
+    "description": description+""+responseData.data.data.spVendInfo.voucher
 
   });
 
@@ -34,9 +34,9 @@ const ddinElectricityPaymentServiceNewMethod = async (
   try {
     const response = await axios.request(config)
     if (response.status === 200){
-      let transactionId=response.data.transactionId
+      let transactionId=response.data.id
       let status="Complete"
-    updateLogs(trxId,status,transactionId)
+    updateLogs(transactionId,status,trxId)
       return res.status(200).json({
         responseCode: 200,
         communicationStatus: "SUCCESS",

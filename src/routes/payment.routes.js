@@ -26,7 +26,7 @@ router.post('/pindo-bulksms/payment',CheckAccountStatus,bulkSmsController.ddinPi
 
 //STARTIME 
 router.post('/startime/validate-vend',Startimeontroller.ValidateStartimeNumber);
-router.post('/startime/payment',CheckAccountStatus,airtimeController.ddinAirtimePayment);
+router.post('/startime/payment',CheckAccountStatus,Startimeontroller.ddinStartimePayment);
 
 //payament status
 router.get("/check-efashe-transaction/status",checkEfashePayment)

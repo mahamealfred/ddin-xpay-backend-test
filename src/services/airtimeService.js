@@ -2,6 +2,7 @@ const dotenv = require("dotenv")
 const axios = require("axios");
 const generateAccessToken = require("../Utils/generateToken.js");
 const { updateLogs, logsData } = require("../Utils/logsData.js");
+const Chargeback = require("../Utils/chargback.js");
 
 dotenv.config();
 
@@ -62,6 +63,7 @@ const airtimePaymentService = async (req, res, response, amount, description, tr
     let thirdpart_status=error.response.status
     let status="Incomplete"
    logsData(transactionId,thirdpart_status,description,amount,agent_name,status,service_name,trxId)
+   Chargeback(transactionId)
     if (error.response.status === 400) {
       return res.status(400).json({
         responseCode: 400,
