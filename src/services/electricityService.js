@@ -8,8 +8,9 @@ const callPollEndpoint = require("../Utils/checkEfasheTransactionStatus.js");
 dotenv.config();
 //new methode
 const ddinElectricityPaymentServiceNewMethod = async (
-  req,res,resp,responseData,amount,toMemberId,trxId,phoneNumber,transferTypeId,currencySymbol,description
+  req,res,resp,amount,toMemberId,trxId,phoneNumber,transferTypeId,currencySymbol,description,agent_name,service_name
 ) => {
+  const responseData=await callPollEndpoint(resp)
   const authheader = req.headers.authorization;
   let data = JSON.stringify({
     "toMemberId": `${toMemberId}`,
@@ -35,8 +36,9 @@ const ddinElectricityPaymentServiceNewMethod = async (
     const response = await axios.request(config)
     if (response.status === 200){
       let transactionId=response.data.id
+      let thirdpart_status = resp.status
       let status="Complete"
-    updateLogs(transactionId,status,trxId)
+      logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
       return res.status(200).json({
         responseCode: 200,
         communicationStatus: "SUCCESS",
@@ -51,7 +53,10 @@ const ddinElectricityPaymentServiceNewMethod = async (
     
     }
   } catch (error) {
-    
+    let transactionId=""
+    let status="Incomplete"
+    let thirdpart_status = resp.status
+    logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
     if (error.response.status === 401) {
       return res.status(401).json({
         responseCode: 401,

@@ -35,7 +35,7 @@ static async ddinElectricityPaymentNewMethode(req,res){
     verticalId: "electricity",
     deliveryMethodId: "sms",
    // deliverTo: "string",
-   // callBack: "string"
+   // callBack:`https://sb-api.efashe.com/rw/v2/vend/${trxId}/status`
   }
   );
   let config = {
@@ -52,17 +52,17 @@ static async ddinElectricityPaymentNewMethode(req,res){
   try {
     const resp = await axios.request(config)
     if (resp.status === 202) {
-      const responseData=await callPollEndpoint(resp)
       let transactionId = ""
       let thirdpart_status = resp.status
       let status = "Incomplete"
-      logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
-      ddinElectricityPaymentServiceNewMethod(req,res,resp,responseData,amount,toMemberId,trxId,phoneNumber,transferTypeId,currencySymbol,description)
+
+      // logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
+      ddinElectricityPaymentServiceNewMethod(req,res,resp,amount,toMemberId,trxId,phoneNumber,transferTypeId,currencySymbol,description,agent_name,service_name)
       
     }
 
   } catch (error) {
-    let transactionId = response.data.id
+    let transactionId = ""
     let thirdpart_status = error.response.status
     let status = "Incomplete"
     logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)

@@ -24,7 +24,7 @@ const ddinRraPaymentService = async (req, res, response, amount, description, tr
     verticalId: "tax",
     deliveryMethodId: "sms",
     //deliverTo: "string",
-   // callBack: "string"
+    //callBack: "string"
   }
   );
   let config = {
@@ -50,7 +50,7 @@ const ddinRraPaymentService = async (req, res, response, amount, description, tr
       return res.status(200).json({
         responseCode: 200,
         communicationStatus: "SUCCESS",
-        responseDescription: "Payment has been processed! Details of transactions are included below",
+        responseDescription: description,
         data: {
           transactionId: response.data.id,
           amount: amount,

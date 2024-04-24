@@ -10,7 +10,7 @@ const PORT = process.env.PORT;
 
 //loading middlewares
 app.use(express.json());
-app.use(cors({credentials: true, origin: ['https://xpay.ddin.rw','http://localhost:3000','http://localhost:3001','https://xxpay.netlify.app','https://xpaytest.netlify.app','https://xpaydashoard.netlify.app']}));
+app.use(cors({credentials: true, origin: ['https://xpay.ddin.rw','http://localhost:3000','http://localhost:3001','https://xxpay.netlify.app','https://xpaytest.netlify.app','https://xpaydashboard.netlify.app']}));
 app.enable('trust proxy');
 
 //loading routes

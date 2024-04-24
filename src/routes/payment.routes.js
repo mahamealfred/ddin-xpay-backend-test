@@ -10,7 +10,16 @@ const Startimeontroller = require("../controllers/startimeController.js");
 
 const router=express.Router();
 //RRA Payament
-router.post('/rra/validate-vend',rraController.ValidateRRAId);
+router.post('/rra/validate-vend',
+rraController.ValidateRRAId
+// (req,res)=>{
+//     return res.status(400).json({
+//         responseCode: 400,
+//         communicationStatus: "FAILED",
+//         responseDescription: "Dear client, the service is currently undergoing maintenance to serve you better. We appreciate your patience and apologize for any inconvenience."
+//       });
+// }
+);
 router.post('/rra/payment',CheckAccountStatus,rraController.rraPayment);
 
 //ELECTRICITY Payament
@@ -25,7 +34,16 @@ router.post('/airtime/payment',CheckAccountStatus,airtimeController.ddinAirtimeP
 router.post('/pindo-bulksms/payment',CheckAccountStatus,bulkSmsController.ddinPindoBulkSmsPayment);
 
 //STARTIME 
-router.post('/startime/validate-vend',Startimeontroller.ValidateStartimeNumber);
+router.post('/startime/validate-vend',
+Startimeontroller.ValidateStartimeNumber
+// (req,res)=>{
+//     return res.status(400).json({
+//         responseCode: 400,
+//         communicationStatus: "FAILED",
+//         responseDescription: "Dear client, the service is currently undergoing maintenance to serve you better. We appreciate your patience and apologize for any inconvenience."
+//       });
+// }
+);
 router.post('/startime/payment',CheckAccountStatus,Startimeontroller.ddinStartimePayment);
 
 //payament status

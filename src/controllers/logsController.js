@@ -35,8 +35,8 @@ class logsController {
                     responseCode: 200,
                     communicationStatus: "SUCCESS",
                     responseDescription: "Account Transactions",
-                    data:transactions,
-                    meta: response.data.elements
+                    data:transactions
+                    
             })}
             return res.status(500).json({
                 responseCode: 500,

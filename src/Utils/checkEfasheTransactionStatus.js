@@ -17,9 +17,7 @@ const callPollEndpoint = async (responseData) => {
         },
       }
       );
-      if(response.status === 200){
-        return response
-      }
+      if(response.status === 200)return response
     // console.log('Response from poll endpoint:', response.data);
     // Handle response as needed
   } catch (error) {

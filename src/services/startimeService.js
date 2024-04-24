@@ -41,7 +41,7 @@ const ddinStartimePaymentService = async (req, res, response, amount, descriptio
   try {
     const resp = await axios.request(config)
     if (resp.status === 202) {
-      const responseData=await callPollEndpoint(resp)
+      // const responseData=await callPollEndpoint(resp)
       let transactionId = response.data.id
       let thirdpart_status = resp.status
       let status = "Complete"
@@ -49,12 +49,11 @@ const ddinStartimePaymentService = async (req, res, response, amount, descriptio
       return res.status(200).json({
         responseCode: 200,
         communicationStatus: "SUCCESS",
-        responseDescription: "Payment has been processed! Details of transactions are included below",
+        responseDescription: description,
         data: {
           transactionId: response.data.id,
           amount: amount,
-          description: description,
-          spVendInfo:responseData.data.spVendInfo
+          description: description
         }
       });
     }

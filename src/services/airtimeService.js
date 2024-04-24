@@ -48,7 +48,7 @@ const airtimePaymentService = async (req, res, response, amount, description, tr
       return res.status(200).json({
         responseCode: 200,
         communicationStatus: "SUCCESS",
-        responseDescription: "Payment has been processed! Details of transactions are included below",
+        responseDescription: description,
         data: {
           transactionId: response.data.id,
           amount: amount,
