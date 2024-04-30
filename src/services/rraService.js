@@ -41,25 +41,59 @@ const ddinRraPaymentService = async (req, res, response, amount, description, tr
   try {
     const resp = await axios.request(config)
     if (resp.status === 202) {
-      const responseData=await callPollEndpoint(resp)
-      let transactionId = response.data.id
-      let thirdpart_status = resp.status
-      let status = "Complete"
-      logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
+      // const responseData=await callPollEndpoint(resp)
+      // let transactionId = response.data.id
+      // let thirdpart_status = resp.status
+      // let status = "Complete"
+      // logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
      
-      return res.status(200).json({
-        responseCode: 200,
-        communicationStatus: "SUCCESS",
-        responseDescription: description,
-        data: {
-          transactionId: response.data.id,
-          amount: amount,
-          description: description,
-          spVendInfo:responseData.data.spVendInfo
+      // return res.status(200).json({
+      //   responseCode: 200,
+      //   communicationStatus: "SUCCESS",
+      //   responseDescription: description,
+      //   data: {
+      //     transactionId: response.data.id,
+      //     amount: amount,
+      //     description: description,
+      //     spVendInfo:responseData.data.spVendInfo
+      //   }
+      // });
+      let transactionId = response.data.id;
+      let status = "Incomplete";
+      while (true) {
+        const responseData = await callPollEndpoint(resp);
+        let thirdpart_status = responseData?.data?.data?.trxStatusId;
+        if (thirdpart_status === "successful") {
+          status = "Complete";
+          logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
+          return res.status(200).json({
+            responseCode: 200,
+            communicationStatus: "SUCCESS",
+            responseDescription: description,
+            data: {
+                  transactionId: response.data.id,
+                  amount: amount,
+                  description: description,
+                  spVendInfo:responseData.data.data.spVendInfo
+                }
+          });
+        } else if (thirdpart_status !== "pending") {
+          // Handle other non-pending statuses
+          status = "Incomplete";
+          logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
+          Chargeback(transactionId);
+          return res.status(400).json({
+            responseCode: 400,
+            communicationStatus: "Failed",
+            responseDescription: "Transaction process failed"
+          });
         }
-      });
-    }
 
+        // Delay before next polling attempt (e.g., 3 seconds)
+        await delay(3000); // Delay for 3 seconds
+      }
+
+    }
 
   } catch (error) {
     let transactionId = response.data.id
@@ -83,5 +117,6 @@ const ddinRraPaymentService = async (req, res, response, amount, description, tr
     });
   }
 };
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 module.exports = ddinRraPaymentService 

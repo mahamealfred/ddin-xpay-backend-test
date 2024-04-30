@@ -8,83 +8,105 @@ const callPollEndpoint = require("../Utils/checkEfasheTransactionStatus.js");
 dotenv.config();
 //new methode
 const ddinElectricityPaymentServiceNewMethod = async (
-  req,res,resp,amount,toMemberId,trxId,phoneNumber,transferTypeId,currencySymbol,description,agent_name,service_name
+  req, res, resp, amount, toMemberId, trxId, phoneNumber, transferTypeId, currencySymbol, description, agent_name, service_name
 ) => {
-  const responseData=await callPollEndpoint(resp)
+
   const authheader = req.headers.authorization;
-  let data = JSON.stringify({
-    "toMemberId": `${toMemberId}`,
-    "amount": `${amount}`,
-    "transferTypeId": `${transferTypeId}`,
-    "currencySymbol": currencySymbol,
-    "description": description+""+responseData.data.data.spVendInfo.voucher
 
-  });
+  let status = "Incomplete";
+  while (true) {
+    const responseData = await callPollEndpoint(resp);
+    let thirdpart_status = responseData?.data?.data?.trxStatusId;
+    if (thirdpart_status === "successful") {
+      let data = JSON.stringify({
+        "toMemberId": `${toMemberId}`,
+        "amount": `${amount}`,
+        "transferTypeId": `${transferTypeId}`,
+        "currencySymbol": currencySymbol,
+        "description": description+""+responseData.data.data.spVendInfo
 
-  let config = {
-    method: 'post',
-    maxBodyLength: Infinity,
-    url: process.env.CORE_URL+'/rest/payments/confirmMemberPayment',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `${authheader}`
-    },
-    data: data
-  };
+      });
 
-  try {
-    const response = await axios.request(config)
-    if (response.status === 200){
-      let transactionId=response.data.id
-      let thirdpart_status = resp.status
-      let status="Complete"
-      logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
-      return res.status(200).json({
-        responseCode: 200,
-        communicationStatus: "SUCCESS",
-        responseDescription: "Payment has been processed! Details of transactions are included below",
-        data: {
-          transactionId: response.data.id,
-          amount: amount,
-          description: description,
-          spVendInfo:responseData.data.data.spVendInfo
+      let config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: process.env.CORE_URL + '/rest/payments/confirmMemberPayment',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `${authheader}`
+        },
+        data: data
+      };
+
+      try {
+        const response = await axios.request(config)
+        if (response.status === 200) {
+          let transactionId = response.data.id;
+          status = "Complete";
+          logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
+          return res.status(200).json({
+            responseCode: 200,
+            communicationStatus: "SUCCESS",
+            responseDescription: description,
+            data: {
+              transactionId: response.data.id,
+              amount: amount,
+              description: description,
+              spVendInfo: responseData.data.data.spVendInfo
+            }
+          });
         }
-      });
-    
-    }
-  } catch (error) {
-    let transactionId=""
-    let status="Incomplete"
-    let thirdpart_status = resp.status
-    logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
-    if (error.response.status === 401) {
-      return res.status(401).json({
-        responseCode: 401,
-        communicationStatus: "FAILED",
-        responseDescription: "Username and Password are required for authentication"
-      });
-    }
-    if (error.response.status === 400) {
+      } catch (error) {
+        let transactionId = ""
+        let status = "Incomplete"
+        logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
+        if (error.response.status === 401) {
+          return res.status(401).json({
+            responseCode: 401,
+            communicationStatus: "FAILED",
+            responseDescription: "Username and Password are required for authentication"
+          });
+        }
+        if (error.response.status === 400) {
+          return res.status(400).json({
+            responseCode: 400,
+            communicationStatus: "FAILED",
+            responseDescription: "Invalid Username or Password"
+          });
+        }
+        if (error.response.status === 404) {
+          return res.status(404).json({
+            responseCode: 404,
+            communicationStatus: "FAILED",
+            responseDescription: "Account Not Found"
+          });
+        }
+        return res.status(500).json({
+          responseCode: 500,
+          communicationStatus: "FAILED",
+          error: error.message,
+        });
+      }
+    } else if (thirdpart_status !== "pending") {
+      // Handle other non-pending statuses
+      status = "Incomplete";
+      transactionId=""
+      logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
+     // Chargeback(transactionId);
       return res.status(400).json({
         responseCode: 400,
-        communicationStatus: "FAILED",
-        responseDescription: "Invalid Username or Password"
+        communicationStatus: "Failed",
+        responseDescription: "Transaction process failed"
       });
     }
-    if (error.response.status === 404) {
-      return res.status(404).json({
-        responseCode: 404,
-        communicationStatus: "FAILED",
-        responseDescription: "Account Not Found"
-      });
-    }
-    return res.status(500).json({
-      responseCode: 500,
-      communicationStatus: "FAILED",
-      error: error.message,
-    });
+
+    // Delay before next polling attempt (e.g., 3 seconds)
+    await delay(3000); // Delay for 3 seconds
   }
-};
+
+}
+
+
 
 
 //previoys method
@@ -103,8 +125,8 @@ const ddinElectricityPaymentService = async (req, res, response, amount, descrip
     amount: amount,
     verticalId: "electricity",
     deliveryMethodId: "sms",
-   // deliverTo: "string",
-   // callBack: "string"
+    // deliverTo: "string",
+    // callBack: "string"
   }
   );
   let config = {
@@ -121,12 +143,12 @@ const ddinElectricityPaymentService = async (req, res, response, amount, descrip
   try {
     const resp = await axios.request(config)
     if (resp.status === 202) {
-      const responseData=await callPollEndpoint(resp)
+      const responseData = await callPollEndpoint(resp)
       let transactionId = response.data.id
       let thirdpart_status = resp.status
       let status = "Complete"
       logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
-      if(responseData.status===200){
+      if (responseData.status === 200) {
         return res.status(200).json({
           responseCode: 200,
           communicationStatus: "SUCCESS",
@@ -135,11 +157,11 @@ const ddinElectricityPaymentService = async (req, res, response, amount, descrip
             transactionId: response.data.id,
             amount: amount,
             description: description,
-            spVendInfo:responseData.data.data.spVendInfo
+            spVendInfo: responseData.data.data.spVendInfo
           }
         });
       }
-      
+
     }
 
   } catch (error) {
@@ -163,5 +185,5 @@ const ddinElectricityPaymentService = async (req, res, response, amount, descrip
     });
   }
 };
-
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 module.exports = ddinElectricityPaymentServiceNewMethod
