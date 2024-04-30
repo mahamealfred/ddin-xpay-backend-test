@@ -45,7 +45,7 @@ const airtimePaymentService = async (req, res, response, amount, description, tr
       let status = "Incomplete";
       while (true) {
         const responseData = await callPollEndpoint(resp);
-        let thirdpart_status = responseData?.data?.data?.trxStatusId;
+        let thirdpart_status = responseData.data.data.trxStatusId;
         if (thirdpart_status === "successful") {
           status = "Complete";
           logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId);
