@@ -41,7 +41,7 @@ class StartimeController {
     };
   
     try {
-      const response = await axios.request(config)
+      const response = await axios.request(config);
       if (response.status === 200){
        //call third part
        await ddinStartimePaymentService(req, res, response, amount, description, trxId,phoneNumber,service_name,agent_name)

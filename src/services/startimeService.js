@@ -22,7 +22,7 @@ const ddinStartimePaymentService = async (req, res, response, amount, descriptio
     customerAccountNumber: phoneNumber,
     amount: amount,
     verticalId: "paytv",
-    deliveryMethodId: "sms",
+    deliveryMethodId: "direct_topup",
     //deliverTo: "string",
    // callBack: "string"
   }
@@ -41,27 +41,46 @@ const ddinStartimePaymentService = async (req, res, response, amount, descriptio
   try {
     const resp = await axios.request(config)
     if (resp.status === 202) {
-      // const responseData=await callPollEndpoint(resp)
-      let transactionId = response.data.id
-      let thirdpart_status = resp.status
-      let status = "Complete"
-      logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
-      return res.status(200).json({
-        responseCode: 200,
-        communicationStatus: "SUCCESS",
-        responseDescription: description,
-        data: {
-          transactionId: response.data.id,
-          amount: amount,
-          description: description
+      let transactionId = response.data.id;
+      let status = "Incomplete";
+      while (true) {
+        const responseData = await callPollEndpoint(resp);
+        let thirdpart_status = responseData?.data?.data?.trxStatusId;
+        if (thirdpart_status === "successful") {
+          status = "Complete";
+          logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
+          return res.status(200).json({
+            responseCode: 200,
+            communicationStatus: "SUCCESS",
+            responseDescription: description,
+            data: {
+                  transactionId: response.data.id,
+                  amount: amount,
+                  description: description,
+                  spVendInfo:responseData.data.data.spVendInfo
+                }
+          });
+        } else if (thirdpart_status !== "pending") {
+          // Handle other non-pending statuses
+          status = "Incomplete";
+          logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
+          Chargeback(transactionId);
+          return res.status(400).json({
+            responseCode: 400,
+            communicationStatus: "Failed",
+            responseDescription: "We're unable to complete your transaction right now. Please try again later"
+          });
         }
-      });
-    }
 
+        // Delay before next polling attempt (e.g., 3 seconds)
+        await delay(3000); // Delay for 3 seconds
+      }
+
+    }
 
   } catch (error) {
     let transactionId = response.data.id
-    let thirdpart_status = error.response.status
+    let thirdpart_status = error.response ? error.response.status : 'Unknown Error';
     let status = "Incomplete"
     logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
     Chargeback(transactionId)

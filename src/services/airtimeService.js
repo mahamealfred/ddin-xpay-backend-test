@@ -67,7 +67,7 @@ const airtimePaymentService = async (req, res, response, amount, description, tr
           return res.status(400).json({
             responseCode: 400,
             communicationStatus: "Failed",
-            responseDescription: "Transaction process failed"
+            responseDescription: "We're unable to complete your transaction right now. Please try again later"
           });
         }
 

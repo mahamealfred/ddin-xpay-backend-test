@@ -85,7 +85,8 @@ const ddinRraPaymentService = async (req, res, response, amount, description, tr
           return res.status(400).json({
             responseCode: 400,
             communicationStatus: "Failed",
-            responseDescription: "Transaction process failed"
+            responseDescription: "We're unable to complete your transaction right now. Please try again later"
+
           });
         }
 
@@ -97,7 +98,7 @@ const ddinRraPaymentService = async (req, res, response, amount, description, tr
 
   } catch (error) {
     let transactionId = response.data.id
-    let thirdpart_status = error.response.status
+    let thirdpart_status = error.response ? error.response.status : 'Unknown Error';
     let status = "Incomplete"
     logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
     Chargeback(transactionId)

@@ -10,9 +10,7 @@ dotenv.config();
 const ddinElectricityPaymentServiceNewMethod = async (
   req, res, resp, amount, toMemberId, trxId, phoneNumber, transferTypeId, currencySymbol, description, agent_name, service_name
 ) => {
-
   const authheader = req.headers.authorization;
-
   let status = "Incomplete";
   while (true) {
     const responseData = await callPollEndpoint(resp);
@@ -23,7 +21,7 @@ const ddinElectricityPaymentServiceNewMethod = async (
         "amount": `${amount}`,
         "transferTypeId": `${transferTypeId}`,
         "currencySymbol": currencySymbol,
-        "description": description+""+responseData.data.data.spVendInfo
+        "description": description+""+responseData.data.data.spVendInfo.voucher
 
       });
 
@@ -57,7 +55,7 @@ const ddinElectricityPaymentServiceNewMethod = async (
           });
         }
       } catch (error) {
-        let transactionId = ""
+        let transactionId = "0000"
         let status = "Incomplete"
         logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
         if (error.response.status === 401) {
@@ -96,7 +94,7 @@ const ddinElectricityPaymentServiceNewMethod = async (
       return res.status(400).json({
         responseCode: 400,
         communicationStatus: "Failed",
-        responseDescription: "Transaction process failed"
+        responseDescription: "We're unable to complete your transaction right now. Please try again later"
       });
     }
 
