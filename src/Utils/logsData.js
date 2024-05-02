@@ -40,5 +40,28 @@ const updateLogs = async(transactionId,status,trxId)=>{
         }
       );
 };
-
-module.exports= {logsData,updateLogs}
+const selectAllLogs=async()=>{
+  
+    dbConnect.query('SELECT * FROM transactions_status', (error, results) => {
+      if (error) {
+        console.error('Error executing select query:', error);
+       // res.status(500).send('Error updating employee salary');
+      } else {
+       // console.log(' successful',results);
+       let transactions=[]
+       results.forEach(element => {
+        if(element.status === "Complete")
+        transactions.push({
+            ID:element.ID
+        });
+    
+    })
+   // console.log('successful',transactions);
+        return transactions
+       // res.send('Employee salary updated successfully');
+      }
+     /// return transactions
+    }
+  );
+};
+module.exports= {logsData,updateLogs,selectAllLogs}

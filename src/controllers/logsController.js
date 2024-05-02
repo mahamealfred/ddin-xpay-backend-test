@@ -1,11 +1,30 @@
 const dotenv = require("dotenv")
 const axios = require("axios");
 const dbConnect = require("../db/config");
+const {  selectAllLogs } = require("../Utils/logsData");
 dotenv.config();
 class logsController {
     static async getLogs(req, res) {
         const authheader = req.headers.authorization
+              let transData=[]
         try {
+            dbConnect.query('SELECT * FROM transactions_status', (error, results) => {
+                if (error) {
+                    console.error('Error executing select query:', error);
+                } else {
+                    // If the query is successful, push the results into the transactions array
+                    transData.push(results)
+                    // results.forEach(element => {
+                    //     if(element.status === "Complete")
+                    //     transData.push({
+                    //         ID:element.ID
+                    //     });
+                    
+                    // })
+                   // console.log('Transactions array:', transactions);
+                }
+            });
+            //console.log('Transactions retrieved successfully:', transactions);
             const response = await axios.get(process.env.CORE_URL+'/rest/accounts/default/history', {
                 headers: {
                     Authorization: authheader,
@@ -13,7 +32,7 @@ class logsController {
                 withCredentials: true,
             });
             if (response.status === 200) {
-               
+                // console.log('Transactions retrieved successfully:', transData);
                 let transactions=[]
                response.data.elements.forEach(element => {
                 transactions.push({
@@ -31,19 +50,36 @@ class logsController {
                     destinationAccountHolderName: null
                 });
             })
-                return res.status(200).json({
-                    responseCode: 200,
-                    communicationStatus: "SUCCESS",
-                    responseDescription: "Account Transactions",
-                    data:transactions
-                    
-            })}
-            return res.status(500).json({
-                responseCode: 500,
-                communicationStatus: "FAILED",
-                responseDescription: "Something went wrong, Please try again later.",
-            });
+            const filteredTransactions = [];
 
+            // Iterate through each object in tranData
+            transData.forEach(data => {
+                // const { transactionId, status } = data;
+                data.forEach(item=>{
+                    const transId=item.transactionId
+                    const stat=item.status
+                   
+                    const matchingTransaction = transactions.find(transaction => {
+                     //  console.log("hfhhf",transaction.id,transId)
+                        if(transaction.id === transId &&  stat==="Complete"){
+                        filteredTransactions.push(transaction);
+                           
+                        }
+                        // return transaction.id === transId && stat==="Complete";
+                    });
+                })
+      
+            });
+            return res.status(200).json({
+                responseCode: 200,
+                communicationStatus: "SUCCESS",
+                responseDescription: "Account Transactions",
+                data:filteredTransactions
+                
+        })
+               
+            
+        }
         } catch (error) {
             if (error.response.status === 401) {
                 return res.status(401).json({
@@ -169,6 +205,78 @@ class logsController {
             });
 
         } catch (error) {
+            return res.status(500).json({
+                responseCode: 500,
+                communicationStatus: "FAILED",
+                error: error.message,
+            });
+        }
+
+    }
+//previous methode
+    static async getTransactionsLogs(req, res) {
+        const authheader = req.headers.authorization
+        try {
+            const response = await axios.get(process.env.CORE_URL+'/rest/accounts/default/history', {
+                headers: {
+                    Authorization: authheader,
+                },
+                withCredentials: true,
+            });
+            if (response.status === 200) {
+               
+                let transactions=[]
+               response.data.elements.forEach(element => {
+                transactions.push({
+                    id: element.id.toString(),
+                    date: element.date,
+                    formattedDate: element.formattedDate,
+                    processDate: element.processDate,
+                    formattedProcessDate: element.formattedProcessDate,
+                    amount: element.amount.toString(),
+                    formattedAmount: element.formattedAmount,
+                    transactionType: element.transferType.name,
+                    agentAccount: null,
+                    description: element.description,
+                    destinationAccountName: element.transferType.to.name,
+                    destinationAccountHolderName: null
+                });
+            })
+                return res.status(200).json({
+                    responseCode: 200,
+                    communicationStatus: "SUCCESS",
+                    responseDescription: "Account Transactions",
+                    data:transactions
+                    
+            })}
+            return res.status(500).json({
+                responseCode: 500,
+                communicationStatus: "FAILED",
+                responseDescription: "Something went wrong, Please try again later.",
+            });
+
+        } catch (error) {
+            if (error.response.status === 401) {
+                return res.status(401).json({
+                    responseCode: 401,
+                    communicationStatus: "FAILED",
+                    responseDescription: "Username and Password are required for authentication"
+                });
+            }
+            if (error.response.status === 400) {
+                return res.status(400).json({
+                    responseCode: 400,
+                    communicationStatus: "FAILED",
+                    responseDescription: "Invalid Username or Password"
+                });
+            }
+            if (error.response.status === 404) {
+                return res.status(404).json({
+                    responseCode: 404,
+                    communicationStatus: "FAILED",
+                    responseDescription: "Account Not Found"
+                });
+            }
             return res.status(500).json({
                 responseCode: 500,
                 communicationStatus: "FAILED",
