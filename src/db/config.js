@@ -11,11 +11,11 @@ const db_port=process.env.DB_PORT;
     const dbConnect=  mysql.createPool({
       connectionLimit: 10,
       connectionTimeout: 30000,
-      host: host,
-      user: username,
-      port:db_name,
-      password: password,
-      database: db_name
+      host: "172.31.6.5",
+      user: "alfred",
+      port:"3306",
+      password: "DDIN@Norrsken#23",
+      database: "ddin_core_db"
       
     });
     dbConnect.getConnection(function (err, connection) {

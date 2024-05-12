@@ -44,7 +44,7 @@ const ddinStartimePaymentService = async (req, res, response, amount, descriptio
       let transactionId = response.data.id;
       let status = "Incomplete";
       while (true) {
-        const responseData = await callPollEndpoint(resp);
+        const responseData = await callPollEndpoint(resp,trxId);
         let thirdpart_status = responseData.data.data.trxStatusId;
         if (thirdpart_status === "successful") {
           status = "Complete";

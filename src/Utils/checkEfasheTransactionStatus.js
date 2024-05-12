@@ -6,9 +6,11 @@ const generateAccessToken = require("./generateToken");
 
 
 
-const callPollEndpoint = async (responseData) => {
+const callPollEndpoint = async (responseData,trxId) => {
   const accessToken = await generateAccessToken();
-  let URL=`https://sb-api.efashe.com/rw${responseData.data.data.pollEndpoint}`
+  //let URL=`https://sb-api.efashe.com/rw${responseData.data.data.pollEndpoint}`
+  let URL = `https://sb-api.efashe.com/rw/v2/vend/${trxId}/status`
+  
  
   try {
     const response = await axios.get(URL.replace(/\/$/, ''),

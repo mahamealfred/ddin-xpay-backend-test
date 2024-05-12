@@ -8,4 +8,6 @@ router.get('/logs',logsController.getLogs);
 router.get('/logs-transactions',logsController.getLogsFromMysql);
 router.get('/tansaction-byId/:id',logsController.TransactionsByID)
 
+router.get('/all-logs-transactions',logsController.getTransactionsLogs);
+
 module.exports= router

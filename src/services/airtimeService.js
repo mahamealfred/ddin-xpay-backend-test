@@ -38,13 +38,12 @@ const airtimePaymentService = async (req, res, response, amount, description, tr
 
   try {
     const resp = await axios.request(config);
-
     if (resp.status === 202) {
       // Start continuous polling
       let transactionId = response.data.id;
       let status = "Incomplete";
       while (true) {
-        const responseData = await callPollEndpoint(resp);
+        const responseData = await callPollEndpoint(resp,trxId);
         let thirdpart_status = responseData.data.data.trxStatusId;
         if (thirdpart_status === "successful") {
           status = "Complete";
@@ -59,7 +58,7 @@ const airtimePaymentService = async (req, res, response, amount, description, tr
               description: description
             }
           });
-        } else if (thirdpart_status !== "pending") {
+        } else if (thirdpart_status !== "pending"){
           // Handle other non-pending statuses
           status = "Incomplete";
           logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId);
@@ -70,13 +69,13 @@ const airtimePaymentService = async (req, res, response, amount, description, tr
             responseDescription: "We're unable to complete your transaction right now. Please try again later"
           });
         }
-
         // Delay before next polling attempt (e.g., 3 seconds)
-        await delay(3000); // Delay for 3 seconds
+         await delay(3000); // Delay for 3 seconds
       }
     }
   } catch (error) {
     let transactionId = response.data.id;
+    // let thirdpart_status = error.response ? error.response.status : 'Unknown Error';
     let thirdpart_status = error.response ? error.response.status : 'Unknown Error';
     let status = "Incomplete";
     logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId);

@@ -13,7 +13,7 @@ const ddinElectricityPaymentServiceNewMethod = async (
   const authheader = req.headers.authorization;
   let status = "Incomplete";
   while (true) {
-    const responseData = await callPollEndpoint(resp);
+    const responseData = await callPollEndpoint(resp,trxId);
     let thirdpart_status = responseData.data.data.trxStatusId;
     if (thirdpart_status === "successful") {
       let data = JSON.stringify({
