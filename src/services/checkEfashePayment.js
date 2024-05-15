@@ -6,8 +6,9 @@ dotenv.config();
 
 const checkEfashePayment = async (req, res) => {
   const trxId = req.query.trxId
+ 
   const accessToken = await generateAccessToken();
-  let URL = `https://sb-api.efashe.com/rw/v2/vend/${trxId}/status`
+  let URL = `https://sb-api.efashe.com/rw/v2/trx/${trxId}/status`
   try {
     const response = await axios.get(URL.replace(/\/$/, ''),
       {
@@ -24,6 +25,14 @@ const checkEfashePayment = async (req, res) => {
       data: response.data.data
     })
   } catch (error) {
+    
+    if(error.response.status === 404){
+      return res.status(404).json({
+        responseCode: 404,
+        communicationStatus: "FAILED",
+        error: error.response.data.msg
+      });
+    }
     return res.status(500).json({
       responseCode: 500,
       communicationStatus: "FAILED",
