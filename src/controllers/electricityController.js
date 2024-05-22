@@ -78,7 +78,7 @@ static async ddinElectricityPaymentNewMethode(req,res){
     return res.status(500).json({
       responseCode: 500,
       communicationStatus: "FAILED",
-      error: error.response.data.msg
+      error: error.response.data.msg? error.response.data.msg : "Dear client, we're unable to complete your transaction right now. Please try again later."
     });
   }
    
@@ -146,7 +146,7 @@ static async ddinElectricityPayment(req,res){
       return res.status(500).json({
         responseCode: 500,
         communicationStatus: "FAILED",
-        error: error.message,
+        error: "Dear client, we're unable to complete your transaction right now. Please try again later.",
       });
     }
   
@@ -195,7 +195,7 @@ static async ddinElectricityPayment(req,res){
                     pdtName: response.data.data.pdtName,
                     pdtStatusId: response.data.data.pdtStatusId,
                     verticalId: response.data.data.verticalId,
-                    customerAccountNumber: response.data.data.customerAccountNumber,
+                    customerAccountNumber: response.data.data.customerAccountName,
                     svcProviderName: response.data.data.svcProviderName,
                     vendUnitId: response.data.data.vendUnitId,
                     vendMin: response.data.data.vendMin,
@@ -213,7 +213,7 @@ static async ddinElectricityPayment(req,res){
               return res.status(500).json({
                   responseCode: 500,
                   communicationStatus:"FAILED",
-                  responseDescription: "Something went wrong, Please try again later.",
+                  responseDescription: "Dear client, we're unable to complete your transaction right now. Please try again later.",
                 });
           
       } catch (error) {
@@ -242,7 +242,7 @@ static async ddinElectricityPayment(req,res){
           return res.status(500).json({
               responseCode: 500,
               communicationStatus:"FAILED",
-              error: error.message,
+              error: "Dear client, we're unable to complete your transaction right now. Please try again later.",
             });  
       }
         

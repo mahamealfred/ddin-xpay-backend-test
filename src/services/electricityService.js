@@ -82,7 +82,7 @@ const ddinElectricityPaymentServiceNewMethod = async (
         return res.status(500).json({
           responseCode: 500,
           communicationStatus: "FAILED",
-          error: error.message,
+          error: "Dear client, Your transaction has been processed; please get in touch with DDIN Support for follow-up"
         });
       }
     } else if (thirdpart_status !== "pending") {
@@ -94,7 +94,7 @@ const ddinElectricityPaymentServiceNewMethod = async (
       return res.status(400).json({
         responseCode: 400,
         communicationStatus: "Failed",
-        responseDescription: "We're unable to complete your transaction right now. Please try again later"
+        responseDescription: "Dear client, We're unable to complete your transaction right now. Please try again later."
       });
     }
 

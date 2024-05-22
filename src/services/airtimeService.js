@@ -66,7 +66,7 @@ const airtimePaymentService = async (req, res, response, amount, description, tr
           return res.status(400).json({
             responseCode: 400,
             communicationStatus: "Failed",
-            responseDescription: "We're unable to complete your transaction right now. Please try again later"
+            responseDescription: "Dear client, We're unable to complete your transaction right now. Please try again later"
           });
         }
         // Delay before next polling attempt (e.g., 3 seconds)
@@ -76,23 +76,37 @@ const airtimePaymentService = async (req, res, response, amount, description, tr
   } catch (error) {
     let transactionId = response.data.id;
     // let thirdpart_status = error.response ? error.response.status : 'Unknown Error';
-    let thirdpart_status = error.response ? error.response.status : 'Unknown Error';
+    let thirdpart_status = error.response ? error.response.status : '404';
     let status = "Incomplete";
     logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId);
-    Chargeback(transactionId);
-
+  
     if (error.response && error.response.status === 400) {
+      Chargeback(transactionId);
       return res.status(400).json({
         responseCode: 400,
         communicationStatus: "FAILED",
         responseDescription: error.response.data.msg
       });
     }
-
+    if (error.response && error.response.status === 422) {
+      Chargeback(transactionId);
+      return res.status(400).json({
+        responseCode: 400,
+        communicationStatus: "FAILED",
+        responseDescription: error.response.data.msg
+      });
+    }
+    if(!error.response ){
+      return res.status(404).json({
+        responseCode: 404,
+        communicationStatus: "FAILED",
+        responseDescription:"Dear client, Your transaction has been processed; please get in touch with DDIN Support for follow-up."
+      }); 
+    }
     return res.status(500).json({
       responseCode: 500,
       communicationStatus: "FAILED",
-      error: error.response ? error.response.data.msg : 'Unknown Error',
+      error:"Dear client, we're unable to complete your transaction right now. Please try again later.",
     });
   }
 };

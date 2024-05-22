@@ -41,23 +41,6 @@ const ddinRraPaymentService = async (req, res, response, amount, description, tr
   try {
     const resp = await axios.request(config)
     if (resp.status === 202) {
-      // const responseData=await callPollEndpoint(resp)
-      // let transactionId = response.data.id
-      // let thirdpart_status = resp.status
-      // let status = "Complete"
-      // logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
-     
-      // return res.status(200).json({
-      //   responseCode: 200,
-      //   communicationStatus: "SUCCESS",
-      //   responseDescription: description,
-      //   data: {
-      //     transactionId: response.data.id,
-      //     amount: amount,
-      //     description: description,
-      //     spVendInfo:responseData.data.spVendInfo
-      //   }
-      // });
       let transactionId = response.data.id;
       let status = "Incomplete";
       while (true) {
@@ -85,7 +68,7 @@ const ddinRraPaymentService = async (req, res, response, amount, description, tr
           return res.status(400).json({
             responseCode: 400,
             communicationStatus: "Failed",
-            responseDescription: "We're unable to complete your transaction right now. Please try again later"
+            responseDescription: "Dear client, we're unable to complete your transaction right now. Please try again later"
 
           });
         }
@@ -98,23 +81,38 @@ const ddinRraPaymentService = async (req, res, response, amount, description, tr
 
   } catch (error) {
     let transactionId = response.data.id
-    let thirdpart_status = error.response ? error.response.status : 'Unknown Error';
-    let status = "Incomplete"
-    logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
-    Chargeback(transactionId)
-    if (error.response.status === 400) {
+    let thirdpart_status = error.response ? error.response.status : '404';
+    let status = "Incomplete";
+    logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId);
+  
+    if (error.response && error.response.status === 400) {
+      Chargeback(transactionId);
       return res.status(400).json({
         responseCode: 400,
         communicationStatus: "FAILED",
         responseDescription: error.response.data.msg
-
       });
     }
-
+    if (error.response && error.response.status === 422) {
+      Chargeback(transactionId);
+      return res.status(400).json({
+        responseCode: 400,
+        communicationStatus: "FAILED",
+        responseDescription: error.response.data.msg
+      });
+    }
+    if(!error.response ){
+      return res.status(404).json({
+        responseCode: 404,
+        communicationStatus: "FAILED",
+        responseDescription:"Dear client, Your transaction has been processed; please get in touch with DDIN Support for follow-up."
+      }); 
+    }
+    
     return res.status(500).json({
       responseCode: 500,
       communicationStatus: "FAILED",
-      error: error.response.data.msg,
+      error:"Dear client, we're unable to complete your transaction right now. Please try again later.",
     });
   }
 };

@@ -125,7 +125,7 @@ class authController{
             return res.status(500).json({
                 responseCode: 500,
                 communicationStatus:"FAILED",
-                error: error.message,
+                error: "Dear client, we're unable to complete your resquest right now. Please try again later.",
               });  
         }
    
