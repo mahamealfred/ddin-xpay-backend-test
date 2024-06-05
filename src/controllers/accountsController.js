@@ -143,22 +143,23 @@ static async selfServeCommisiion(req, res) {
       const decodedValue = Buffer.from(authHeaderValue, 'base64').toString('ascii');
       const agent_name = decodedValue.split(':')[0]
     const url = process.env.CORE_URL+'/services/payment';
-    const soapRequest = `
-    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:pay="http://payments.webservices.cyclos.strohalm.nl/">
-       <soapenv:Header/>
-       <soapenv:Body>
-          <pay:doPayment>
-             <params>
-                <toSystem>true</toSystem>  
-                <fromMemberPrincipalType>USER</fromMemberPrincipalType>
-                <fromMember>${agent_name}</fromMember>
-                <amount>${amount}</amount>
-                <description>Agent Commission Withdrawal</description>
-                <transferTypeId>107</transferTypeId>        
-             </params>
-          </pay:doPayment>
-       </soapenv:Body>
-    </soapenv:Envelope>
+    const soapRequest =`
+   <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:pay="http://payments.webservices.cyclos.strohalm.nl/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <pay:doPayment>
+         <!--Optional:-->
+         <params>
+            <toSystem>true</toSystem>  
+            <fromMemberPrincipalType>USER</fromMemberPrincipalType>
+            <fromMember>${agent_name}</fromMember>
+            <amount>${amount}</amount>
+            <description>Agent Commission Withdrawal</description>
+            <transferTypeId>100</transferTypeId>        
+         </params>
+      </pay:doPayment>
+   </soapenv:Body>
+</soapenv:Envelope>
     `;
     
     const headers = {
@@ -169,10 +170,18 @@ static async selfServeCommisiion(req, res) {
         const response = await axios.post(url, soapRequest, { headers });
         try {
           const result = await xml2js.parseStringPromise(response.data, { explicitArray: false });
-         // console.log('JSON response:', JSON.stringify(result, null, 2));
-         if(result){
+          //console.log('JSON response:', JSON.stringify(result, null, 2));
+         // console.log("result:",result["soap:Envelope"]["soap:Body"][ 'ns2:doPaymentResponse'].return.status)
+         if(result &&  result["soap:Envelope"]["soap:Body"][ 'ns2:doPaymentResponse'].return.status==="PROCESSED"){
 trustAccountToAgentFloat(req,res,agent_name,amount)
          }
+         if(result &&  result["soap:Envelope"]["soap:Body"][ 'ns2:doPaymentResponse'].return.status==="INVALID_PARAMETERS"){
+          return res.status(400).json({
+            responseCode: 400,
+            communicationStatus:"FAILED",
+            responseDescription: "Something went wrong. Please get in touch with DDIN support!"
+          }); 
+                   }
         } catch (parseError) {
           
             return res.status(500).json({

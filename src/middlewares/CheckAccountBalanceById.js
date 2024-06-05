@@ -1,23 +1,31 @@
 const axios = require("axios");
-const CheckAccountStatus = async (req, res, next) => {
+const CheckAccountBalanceById = async (req, res, next) => {
 	const { accountId,amount } = req.body;
     const authheader = req.headers.authorization;
 
     try {
-        const response = await axios.get(process.env.CORE_URL+'/rest/accounts/default/status',{
+        const response = await axios.get(process.env.CORE_URL+`/rest/accounts/${accountId}/status`,{
            headers: {
                Authorization: authheader,
              },
              withCredentials: true,
                });
-               if(response.status===200 && response.data.balance > amount){
-                return next()
+               if(response.status===200 && response.data.balance < amount){
+                return res.status(400).json({
+                    responseCode: 400,
+                    communicationStatus:"FAILED",
+                    responseDescription: "Insufficient funds to perform this transaction",
+                  });
                }
-                   return res.status(400).json({
-                       responseCode: 400,
-                       communicationStatus:"FAILED",
-                       responseDescription: "Insufficient amount to perform this transaction",
-                     });
+               if(response.status===200 && amount < 5000){
+                return res.status(400).json({
+                    responseCode: 400,
+                    communicationStatus:"FAILED",
+                    responseDescription: "The minimum amount to withdraw is 5,000 Rwf",
+                  });
+               }
+               return next()
+                
                
            } catch (error) {
                if(error.response.status===401){
@@ -50,4 +58,4 @@ const CheckAccountStatus = async (req, res, next) => {
       
        }
 
-module.exports=CheckAccountStatus
+module.exports=CheckAccountBalanceById

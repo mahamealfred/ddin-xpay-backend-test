@@ -17,7 +17,7 @@ const trustAccountToAgentFloat = async (req,res,agent_name,amount) => {
              <toMember>${agent_name}</toMember>
              <amount>${amount}</amount>
              <description>Agent Commission Payment</description>
-             <transferTypeId>108</transferTypeId>        
+             <transferTypeId>101</transferTypeId>        
           </params>
        </pay:doPayment>
     </soapenv:Body>
@@ -38,7 +38,7 @@ const trustAccountToAgentFloat = async (req,res,agent_name,amount) => {
             return res.status(200).json({
                 responseCode: 200,
                 communicationStatus:"SUCCESS",
-                responseDescription: "Your request has been successfully processed and is now pending Admin approval. We will notify you once it's approved. Thank you for your patience!",
+                responseDescription: "Your request has been successfully processed and is now pending administrative approval. Keep checking your balance for updates. Thank you for being so patient!",
                 data:result
               });  
          }
