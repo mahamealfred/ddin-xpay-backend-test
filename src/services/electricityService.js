@@ -21,7 +21,12 @@ const ddinElectricityPaymentServiceNewMethod = async (
         "amount": `${amount}`,
         "transferTypeId": `${transferTypeId}`,
         "currencySymbol": currencySymbol,
-        "description": description+""+responseData.data.data.spVendInfo.voucher
+        "description": description+""+responseData.data.data.spVendInfo.voucher,
+        "customValues":{
+          "internalName" : "trans_id",
+          "fieldId" : "85",
+          "value" : trxId
+         }
 
       });
 
