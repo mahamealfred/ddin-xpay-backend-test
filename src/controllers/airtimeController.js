@@ -76,7 +76,7 @@ class AirtimeController {
       return res.status(500).json({
         responseCode: 500,
         communicationStatus: "FAILED",
-        error: "Dear client, we're unable to complete your transaction right now. Please try again later.",
+        error:"Dear client, we're unable to complete your transaction right now. Please try again later."+ error,
       });
     }
   
