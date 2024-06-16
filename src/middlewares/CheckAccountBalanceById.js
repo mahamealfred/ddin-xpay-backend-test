@@ -17,7 +17,7 @@ const CheckAccountBalanceById = async (req, res, next) => {
                     responseDescription: "Insufficient funds to perform this transaction",
                   });
                }
-               if(response.status===200 && amount < 5000){
+               if(response.status===200 && amount < 100){
                 return res.status(400).json({
                     responseCode: 400,
                     communicationStatus:"FAILED",

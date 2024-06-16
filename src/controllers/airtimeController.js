@@ -25,11 +25,11 @@ class AirtimeController {
       "transferTypeId": `${transferTypeId}`,
       "currencySymbol": currencySymbol,
       "description": description,
-      "customValues":{
+      "customValues":[{
       "internalName" : "trans_id",
       "fieldId" : "85",
       "value" : trxId
-      }
+      }]
   
     });
   

@@ -7,7 +7,7 @@ dotenv.config();
 class rraController{
 
   static async rraPayment(req, res) {
-    const { amount, trxId,transferTypeId, toMemberId, description, currencySymbol, phoneNumber } = req.body;
+    const { amount, trxId,transferTypeId, toMemberId, description, currencySymbol, phoneNumber,taxPayer,tin} = req.body;
     const authheader = req.headers.authorization;
     const authHeaderValue = authheader.split(' ')[1];
        const decodedValue = Buffer.from(authHeaderValue, 'base64').toString('ascii');
@@ -19,11 +19,28 @@ class rraController{
       "transferTypeId": `${transferTypeId}`,
       "currencySymbol": currencySymbol,
       "description": description,
-      "customValues":{
-        "internalName" : "trans_id",
-        "fieldId" : "85",
-        "value" : trxId
-       }
+      "customValues": [
+       {
+      "internalName" : "tax_identification_number",
+      "fieldId" : "46",
+      "value" : tin
+       },
+        {
+      "internalName" : "tax_document_id",
+      "fieldId" : "48",
+      "value" : phoneNumber
+        },
+        {
+      "internalName" : "taxpayer",
+      "fieldId" : "53",
+      "value" : taxPayer
+        },
+	    {
+      "internalName" : "trans_id",
+      "fieldId" : "85",
+      "value" : trxId
+        }
+    ]
   
     });
   
@@ -41,7 +58,6 @@ class rraController{
     try {
       const response = await axios.request(config)
       if (response.status === 200){
-       //call logs table
        await ddinRraPaymentService(req, res, response, amount, description, trxId,phoneNumber,service_name,agent_name)
       }
     } catch (error) {
