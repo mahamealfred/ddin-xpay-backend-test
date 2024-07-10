@@ -29,7 +29,14 @@ class AirtimeController {
       "internalName" : "trans_id",
       "fieldId" : "85",
       "value" : trxId
-      }]
+      },
+      {
+        "internalName" : "net_amount",
+        "fieldId" : "87",
+        "value" : amount
+      }
+    ]
+      
   
     });
   
@@ -48,7 +55,7 @@ class AirtimeController {
       const response = await axios.request(config)
       if (response.status === 200){
        //call third part
-       await airtimePaymentService(req, res, response, amount, description, trxId,phoneNumber,service_name,agent_name)
+      await airtimePaymentService(req, res, response, amount, description, trxId,phoneNumber,service_name,agent_name)
       }
     } catch (error) {
       

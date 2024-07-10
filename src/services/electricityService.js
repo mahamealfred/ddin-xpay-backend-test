@@ -32,6 +32,11 @@ const ddinElectricityPaymentServiceNewMethod = async (
        "internalName" : "trans_id",
        "fieldId" : "85",
        "value" : trxId
+        },
+        {
+          "internalName" : "net_amount",
+          "fieldId" : "87",
+          "value" : amount
         }
        ]
 

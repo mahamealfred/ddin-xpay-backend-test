@@ -3,6 +3,7 @@ const axios =require("axios");
 const generateAccessToken =require("../Utils/generateToken.js");
 const { logsData } = require("../Utils/logsData.js");
 const ddinRraPaymentService = require("../services/rraService.js");
+const findNetAmount = require("../Utils/findNetAmount.js");
 dotenv.config();
 class rraController{
 
@@ -13,6 +14,8 @@ class rraController{
        const decodedValue = Buffer.from(authHeaderValue, 'base64').toString('ascii');
        const agent_name=decodedValue.split(':')[0]
        const service_name="RRA"
+       let netAmount=findNetAmount(amount)
+       
     let data = JSON.stringify({
       "toMemberId": `${toMemberId}`,
       "amount": `${amount}`,
@@ -39,7 +42,12 @@ class rraController{
       "internalName" : "trans_id",
       "fieldId" : "85",
       "value" : trxId
-        }
+        },
+      {
+          "internalName" : "net_amount",
+          "fieldId" : "87",
+          "value" : netAmount
+         }
     ]
   
     });
