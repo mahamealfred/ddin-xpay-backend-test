@@ -66,7 +66,7 @@ static async ddinElectricityPaymentNewMethode(req,res){
     let thirdpart_status = error.response.status
     let status = "Incomplete"
     logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
-    if (error.response.status === 400) {
+    if (error?.response?.status === 400) {
       return res.status(400).json({
         responseCode: 400,
         communicationStatus: "FAILED",
@@ -122,21 +122,21 @@ static async ddinElectricityPayment(req,res){
       }
     } catch (error) {
       
-      if (error.response.status === 401) {
+      if (error?.response?.status === 401) {
         return res.status(401).json({
           responseCode: 401,
           communicationStatus: "FAILED",
           responseDescription: "Username and Password are required for authentication"
         });
       }
-      if (error.response.status === 400) {
+      if (error?.response?.status === 400) {
         return res.status(400).json({
           responseCode: 400,
           communicationStatus: "FAILED",
           responseDescription: "Invalid Username or Password"
         });
       }
-      if (error.response.status === 404) {
+      if (error?.response?.status === 404) {
         return res.status(404).json({
           responseCode: 404,
           communicationStatus: "FAILED",
@@ -217,7 +217,7 @@ static async ddinElectricityPayment(req,res){
                 });
           
       } catch (error) {
-        if(error.response.status===400){
+        if(error?.response?.status===400){
           return res.status(400).json({
               responseCode: 400,
               communicationStatus:"FAILED",
@@ -225,14 +225,14 @@ static async ddinElectricityPayment(req,res){
             }); 
       }
       
-          if(error.response.status===404){
+          if(error?.response?.status===404){
               return res.status(404).json({
                   responseCode: 404,
                   communicationStatus:"FAILED",
                   responseDescription: " Not Found"
                 }); 
           }
-          if(error.response.status===422){
+          if(error?.response?.status===422){
             return res.status(422).json({
                 responseCode: 422,
                 communicationStatus:"FAILED",

@@ -4,7 +4,7 @@ const axios = require("axios");
 
 
 const ChargebackStatus = async (transferId) => {
-    let URL = 'https://core.ddin.rw/core/services/payment'
+    let URL = process.env.CORE_URL+'/services/payment'
     let data = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:pay="http://payments.webservices.cyclos.strohalm.nl/">\r\n   <soapenv:Header/>\r\n   <soapenv:Body>\r\n      <pay:chargeback>\r\n         <!--Optional:-->\r\n         <transferId>${transferId}</transferId>\r\n      </pay:chargeback>\r\n   </soapenv:Body>\r\n</soapenv:Envelope>`;
 
     let config = {

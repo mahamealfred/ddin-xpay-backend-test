@@ -64,4 +64,42 @@ const selectAllLogs=async()=>{
     }
   );
 };
-module.exports= {logsData,updateLogs,selectAllLogs}
+
+// const insertInBulkServicePayment = async(service_name,agent_name,amount,successCount,failureCount,description,status)=>{
+//   let total_amount=amount*successCount;
+//   const data = {
+//       service_name:service_name,
+//       status: status,
+//       description: description,
+//       amount: total_amount,
+//       successCount:successCount,
+//       failureCount:failureCount,
+//       agent_name: agent_name
+//   };
+//   //Insert into logs table
+//    dbConnect.query('INSERT INTO BulkServicePaymentResults SET ?', data, (error, results) => {
+//       if (error) {
+//           console.error('Error inserting into logs: ' + error.message);
+//           //res.status(500).send('Error inserting into logs');
+//           return;
+//       }
+//       console.log('Data inserted into logs: ', results);
+//       //res.send('Data inserted into logs');
+//   });
+// };
+
+
+const insertInBulkServicePayment=async(service_name, agent_name, amount, successCount, failureCount, description, status)=> {
+  //const connection = await mysql.createConnection({ host: 'localhost', user: 'root', password: '', database: 'your_database' });
+  try {
+    await dbConnect.query(
+      'INSERT INTO BulkServicePaymentResults (service_name, agent_name, amount, successCount, failureCount, description, status) VALUES (?, ?, ?, ?, ?, CAST(? AS JSON), ?)',
+      [service_name, agent_name, amount, successCount, failureCount, description, status]
+    );
+  } catch (error) {
+    console.error('Error inserting into logs:', error);
+    return;
+  } 
+};
+
+module.exports= {logsData,updateLogs,selectAllLogs,insertInBulkServicePayment}

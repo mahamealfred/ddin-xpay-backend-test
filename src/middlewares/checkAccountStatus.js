@@ -13,10 +13,11 @@ const CheckAccountStatus = async (req, res, next) => {
                if(response.status===200 && response.data.balance > amount){
                 return next()
                }
+               console.log(response.data.balance,amount)
                    return res.status(400).json({
                        responseCode: 400,
                        communicationStatus:"FAILED",
-                       responseDescription: "Insufficient amount to perform this transaction",
+                       responseDescription: "Insufficient amount to perform this transaction g",
                      });
                
            } catch (error) {

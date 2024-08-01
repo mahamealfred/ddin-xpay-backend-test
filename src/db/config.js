@@ -1,4 +1,4 @@
-const mysql =require("mysql2");
+const mysql =require("mysql2/promise");
 const dotenv =require("dotenv");
 dotenv.config()
 
@@ -22,7 +22,6 @@ const db_port=process.env.DB_PORT;
       if (err) {
           console.log("Connection Error:",err);
       } else {
-        
         console.log("connected to Database.")
         connection.release();
         return connection;

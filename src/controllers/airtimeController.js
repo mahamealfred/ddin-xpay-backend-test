@@ -1,10 +1,12 @@
 const dotenv = require("dotenv")
 const axios = require("axios");
+const mysql =require("mysql2");
 const generateAccessToken = require("../Utils/generateToken.js");
 const ddinAirtimePaymentService = require("../services/airtimeService.js");
 const checkTansactionStatus = require("../Utils/checkEfasheTransactionStatus.js");
-const { logsData } = require("../Utils/logsData.js");
+const { logsData, insertInBulkServicePayment } = require("../Utils/logsData.js");
 const airtimePaymentService = require("../services/airtimeService.js");
+const bulkAirtimePaymentService = require("../services/bulkAirtimeService.js");
 
 dotenv.config();
 
@@ -12,7 +14,6 @@ class AirtimeController {
 
 
   static async  ddinAirtimePayment(req,res){
-    
     const { amount, trxId,transferTypeId, toMemberId, description, currencySymbol, phoneNumber } = req.body;
     const authheader = req.headers.authorization;
     const authHeaderValue = authheader.split(' ')[1];
@@ -88,8 +89,142 @@ class AirtimeController {
     }
   
   }
-  
-  
+ 
+// Bulk Airtime
+static async ddinBulkAirtimePayment(req, res) {
+  const { transferTypeId, toMemberId, currencySymbol, details } = req.body;
+  const authheader = req.headers.authorization;
+  const authHeaderValue = authheader.split(' ')[1];
+  const decodedValue = Buffer.from(authHeaderValue, 'base64').toString('ascii');
+  const agent_name = decodedValue.split(':')[0];
+  const service_name = "Bulk Airtime";
+
+  let successCount = 0;
+  let failureCount = 0;
+  let results = [];
+  let totalAmount = 0;
+
+  for (const detail of details) {
+    let data = JSON.stringify({
+      "toMemberId": `${toMemberId}`,
+      "amount": `${detail.amount}`,
+      "transferTypeId": `${transferTypeId}`,
+      "currencySymbol": currencySymbol,
+      "description": detail.description,
+      "customValues": [
+        {
+          "internalName": "trans_id",
+          "fieldId": "118",
+          "value": detail.trxId
+        },
+        {
+          "internalName": "net_amount",
+          "fieldId": "119",
+          "value": detail.amount
+        }
+      ]
+    });
+
+    let config = {
+      method: 'post',
+      maxBodyLength: Infinity,
+      url: process.env.CORE_URL + '/rest/payments/confirmMemberPayment',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `${authheader}`
+      },
+      data: data
+    };
+
+    try {
+      const response = await axios.request(config);
+      if (response.status === 200) {
+        const airtimeResponse = await bulkAirtimePaymentService(
+          req, 
+          response, 
+          detail.amount, 
+          detail.description, 
+          detail.trxId, 
+          detail.phoneNumber, 
+          service_name, 
+          agent_name
+        );
+        if (airtimeResponse.responseCode === 200) {
+          successCount++;
+          totalAmount += parseFloat(detail.amount);
+          results.push({
+            trxId: detail.trxId,
+            transactionId: response.data.id,
+            status: 'success',
+            data: airtimeResponse.data
+          });
+        } else {
+          failureCount++;
+          results.push({
+            trxId: detail.trxId,
+            status: 'failed',
+            error: airtimeResponse.responseDescription
+          });
+        }
+      }
+    } catch (error) {
+      failureCount++;
+      let errorMessage = "An error occurred";
+      if (error.response) {
+        if (error.response.status === 401) {
+          errorMessage = "Username and Password are required for authentication";
+        } else if (error.response.status === 400) {
+          errorMessage = "Invalid Username or Password";
+        } else if (error.response.status === 404) {
+          errorMessage = "Account Not Found";
+        }
+      }
+      results.push({
+        trxId: detail.trxId,
+        status: 'failed',
+        error: errorMessage,
+        detailedError: error.message
+      });
+    }
+  }
+
+  const finalResponse = {
+    responseCode: 200,
+    communicationStatus: "completed",
+    responseDescription: "Bulk Airtime Payment Results",
+    successCount: successCount,
+    failureCount: failureCount,
+    amount:totalAmount,
+    results: results
+  };
+
+  finalResponse.results = finalResponse.results.map(result => {
+    result.status = result.status.slice(0, 255);
+    if (result.error) {
+      result.error = result.error.slice(0, 255);
+    }
+    if (result.detailedError) {
+      result.detailedError = result.detailedError.slice(0, 255);
+    }
+    return result;
+  });
+
+  const description = JSON.stringify(finalResponse.results);
+  const status = finalResponse.responseCode;
+
+  await insertInBulkServicePayment(service_name, agent_name, totalAmount, successCount, failureCount, description, status);
+if(successCount>0){
+  return res.status(200).json(finalResponse);
+}
+return res.status(400).json({
+    responseCode: 400,
+    communicationStatus: "Failed",
+    responseDescription: "Transaction Failed, Please try again Later",
+    successCount: successCount,
+    failureCount: failureCount,
+});
+ 
+}
 
   //previous 
   static async airTimePayment(req, res) {
@@ -222,21 +357,21 @@ class AirtimeController {
       });
 
     } catch (error) {
-      if (error.response.status === 404) {
+      if (error?.response?.status === 404) {
         return res.status(404).json({
           responseCode: 404,
           communicationStatus: "FAILED",
           responseDescription: " Not Found"
         });
       }
-      if (error.response.status === 422) {
+      if (error?.response?.status === 422) {
         return res.status(422).json({
           responseCode: 422,
           communicationStatus: "FAILED",
           responseDescription: error.response.data.msg
         });
       }
-      if (error.response.status === 400) {
+      if (error?.response?.status === 400) {
         return res.status(400).json({
           responseCode: 400,
           communicationStatus: "FAILED",

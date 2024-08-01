@@ -2,6 +2,7 @@ const dotenv = require("dotenv")
 const axios = require("axios");
 const dbConnect = require("../db/config");
 const {  selectAllLogs } = require("../Utils/logsData");
+
 dotenv.config();
 class logsController {
     static async getLogs(req, res) {
@@ -81,21 +82,21 @@ class logsController {
             
         }
         } catch (error) {
-            if (error.response.status === 401) {
+            if (error?.response?.status === 401) {
                 return res.status(401).json({
                     responseCode: 401,
                     communicationStatus: "FAILED",
                     responseDescription: "Username and Password are required for authentication"
                 });
             }
-            if (error.response.status === 400) {
+            if (error?.response?.status === 400) {
                 return res.status(400).json({
                     responseCode: 400,
                     communicationStatus: "FAILED",
                     responseDescription: "Invalid Username or Password"
                 });
             }
-            if (error.response.status === 404) {
+            if (error?.response?.status === 404) {
                 return res.status(404).json({
                     responseCode: 404,
                     communicationStatus: "FAILED",
@@ -105,7 +106,7 @@ class logsController {
             return res.status(500).json({
                 responseCode: 500,
                 communicationStatus: "FAILED",
-                error: error.message,
+                error: error,
             });
         }
 
@@ -188,31 +189,80 @@ class logsController {
     static async getLogsFromMysql(req, res) {
         //  const authheader = req.headers.authorization;
         try {
-            dbConnect.query('SELECT * FROM transactions_status', (error, results) => {
-                if (error) {
-                    return res.status(500).json({
-                        responseCode: 500,
-                        communicationStatus: "FAILED",
-                        responseDescription: "Error while fecthing data from Database.",
-                    });
-                }
+            // Use the promise-based query method
+            const [results] = await dbConnect.query('SELECT * FROM transactions_status');
+    
+            return res.status(200).json({
+                responseCode: 200,
+                communicationStatus: "SUCCESS",
+                responseDescription: "Transactions Logs",
+                data: results
+            });
+        } catch (error) {
+            return res.status(500).json({
+                responseCode: 500,
+                communicationStatus: "FAILED",
+                responseDescription: "Error while fetching data from Database.",
+                error: error.message,
+            });
+        }
+       
+
+    }
+
+    static async getBulkServicePaymentFromMysql(req, res) {
+        try {
+            // Use the promise-based query method
+            const [results] = await dbConnect.query('SELECT * FROM bulkservicepaymentresults');
+    
+            return res.status(200).json({
+                responseCode: 200,
+                communicationStatus: "SUCCESS",
+                responseDescription: "Transactions Logs",
+                data: results
+            });
+        } catch (error) {
+            return res.status(500).json({
+                responseCode: 500,
+                communicationStatus: "FAILED",
+                responseDescription: "Error while fetching data from Database.",
+                error: error.message,
+            });
+        }
+    }
+
+    static async getBulkServicePaymentByAgentName(req, res) {
+        try {
+            // Extract the agent name from the request parameters or body
+            const { agentName } = req.query; // Assuming agentName is passed as a query parameter
+    
+            // Check if agentName is provided
+            if (!agentName) {
+                return res.status(400).json({
+                    responseCode: 400,
+                    communicationStatus: "FAILED",
+                    responseDescription: "Agent name is required."
+                });
+            }
+            // Use a parameterized query to prevent SQL injection
+            const [results] = await dbConnect.query('SELECT * FROM bulkservicepaymentresults WHERE agent_name = ?',
+                [agentName]);
                 return res.status(200).json({
                     responseCode: 200,
                     communicationStatus: "SUCCESS",
                     responseDescription: "Transactions Logs",
                     data: results
                 });
-            });
-
-        } catch (error) {
-            return res.status(500).json({
-                responseCode: 500,
-                communicationStatus: "FAILED",
-                error: error.message,
-            });
-        }
-
+            } catch (error) {
+                return res.status(500).json({
+                    responseCode: 500,
+                    communicationStatus: "FAILED",
+                    responseDescription: "Error while fetching data from Database.",
+                    error: error.message,
+                });
+            }
     }
+    
 //previous methode
     static async getTransactionsLogs(req, res) {
         const authheader = req.headers.authorization
