@@ -91,7 +91,7 @@ class AirtimeController {
   
   }
  
-// Bulk Airtime
+// Bulk Airtime service
 static async ddinBulkAirtimePayment(req, res) {
   const { transferTypeId, toMemberId, currencySymbol, details } = req.body;
   const authheader = req.headers.authorization;
