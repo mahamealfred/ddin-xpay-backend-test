@@ -56,8 +56,8 @@ class AirtimeController {
       const response = await axios.request(config)
       if (response.status === 200){
        //call third part
-      await airtimePaymentService(req, res, response, amount, description, trxId,phoneNumber,service_name,agent_name)
-      }
+     await airtimePaymentService(req, res, response, amount, description, trxId,phoneNumber,service_name,agent_name)
+    }
     } catch (error) {
       
       if (error.response.status === 401) {
@@ -68,10 +68,11 @@ class AirtimeController {
         });
       }
       if (error.response.status === 400) {
+ 
         return res.status(400).json({
           responseCode: 400,
           communicationStatus: "FAILED",
-          responseDescription: "Invalid Username or Password"
+          responseDescription: "Invalid Username or Password "
         });
       }
       if (error.response.status === 404) {
@@ -191,7 +192,7 @@ static async ddinBulkAirtimePayment(req, res) {
   const finalResponse = {
     responseCode: 200,
     communicationStatus: "completed",
-    responseDescription: "Bulk Airtime Payment Results",
+    responseDescription: `Dear Customer, your bulk airtime transaction of ${totalAmount} Rwf has been successfully processed. Success Count: ${successCount}, Failure Count: ${failureCount}. Thank you for using our service!`,
     successCount: successCount,
     failureCount: failureCount,
     amount:totalAmount,

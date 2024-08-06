@@ -11,6 +11,7 @@ const CheckAccountStatus = async (req, res, next) => {
              withCredentials: true,
                });
                if(response.status===200 && response.data.balance > amount){
+                
                 return next()
                }
                console.log(response.data.balance,amount)
@@ -32,7 +33,7 @@ const CheckAccountStatus = async (req, res, next) => {
                    return res.status(400).json({
                        responseCode: 400,
                        communicationStatus:"FAILED",
-                       responseDescription: "Invalid Username or Password"
+                       responseDescription: "Invalid Username or Password "
                      }); 
                }
                if(error.response.status===404){

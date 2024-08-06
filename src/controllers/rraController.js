@@ -8,7 +8,7 @@ dotenv.config();
 class rraController{
 
   static async rraPayment(req, res) {
-    const { amount, trxId,transferTypeId, toMemberId, description, currencySymbol, phoneNumber,taxPayer,tin} = req.body;
+    const { amount, trxId,transferTypeId, toMemberId, description, currencySymbol, phoneNumber,taxPayer,tin,agentCategory} = req.body;
     const authheader = req.headers.authorization;
     const authHeaderValue = authheader.split(' ')[1];
        const decodedValue = Buffer.from(authHeaderValue, 'base64').toString('ascii');
@@ -24,18 +24,18 @@ class rraController{
       "description": description,
       "customValues": [
        {
-      "internalName" : "tax_identification_number",
-      "fieldId" : "46",
+      "internalName" : agentCategory==="Corporate"?"tax_identification_number_v1":"tax_identification_number",
+      "fieldId" : agentCategory==="Corporate"?"57":"46",
       "value" : tin
        },
         {
-      "internalName" : "tax_document_id",
-      "fieldId" : "48",
+      "internalName" : agentCategory==="Corporate"?"tax_document_id_v1":"tax_document_id",
+      "fieldId" : agentCategory==="Corporate"?"59":"48",
       "value" : phoneNumber
         },
         {
-      "internalName" : "taxpayer",
-      "fieldId" : "53",
+      "internalName" : agentCategory==="Corporate"?"taxpayer_v1":"taxpayer",
+      "fieldId" : agentCategory==="Corporate"?"64":"53",
       "value" : taxPayer
         },
 	    {
