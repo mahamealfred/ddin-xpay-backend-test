@@ -66,7 +66,7 @@ static async ddinElectricityPaymentNewMethode(req,res){
     let thirdpart_status = error.response.status
     let status = "Incomplete"
     logsData(transactionId, thirdpart_status, description, amount, agent_name, status, service_name, trxId)
-    if (error?.response?.status === 400) {
+    if (error.response.status === 400) {
       return res.status(400).json({
         responseCode: 400,
         communicationStatus: "FAILED",
