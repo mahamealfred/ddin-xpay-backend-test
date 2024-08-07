@@ -358,21 +358,21 @@ return res.status(400).json({
       });
 
     } catch (error) {
-      if (error?.response?.status === 404) {
+      if (error.response.status === 404) {
         return res.status(404).json({
           responseCode: 404,
           communicationStatus: "FAILED",
           responseDescription: " Not Found"
         });
       }
-      if (error?.response?.status === 422) {
+      if (error.response.status === 422) {
         return res.status(422).json({
           responseCode: 422,
           communicationStatus: "FAILED",
           responseDescription: error.response.data.msg
         });
       }
-      if (error?.response?.status === 400) {
+      if (error.response.status === 400) {
         return res.status(400).json({
           responseCode: 400,
           communicationStatus: "FAILED",
