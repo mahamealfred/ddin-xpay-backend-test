@@ -93,7 +93,7 @@ const insertInBulkServicePayment=async(service_name, agent_name, amount, success
   //const connection = await mysql.createConnection({ host: 'localhost', user: 'root', password: '', database: 'your_database' });
   try {
     await dbConnect.query(
-      'INSERT INTO BulkServicePaymentResults (service_name, agent_name, amount, successCount, failureCount, description, status) VALUES (?, ?, ?, ?, ?, CAST(? AS JSON), ?)',
+      'INSERT INTO bulkservicepaymentresults (service_name, agent_name, amount, successCount, failureCount, description, status) VALUES (?, ?, ?, ?, ?, CAST(? AS JSON), ?)',
       [service_name, agent_name, amount, successCount, failureCount, description, status]
     );
   } catch (error) {

@@ -12,4 +12,5 @@ router.get('/all-logs-transactions',logsController.getTransactionsLogs);
 //bulk service payment
 router.get('/bulkService-logs-transactions',logsController.getBulkServicePaymentFromMysql);
 router.get('/bulkService-logs-byAgentName-transactions/',logsController.getBulkServicePaymentByAgentName);
+router.get('/bulkService-logs-byAgentNameAndTransId-transactions/',logsController.getBulkServicePaymentByAgentNameAndId);
 module.exports= router

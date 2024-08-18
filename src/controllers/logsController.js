@@ -262,6 +262,58 @@ class logsController {
                 });
             }
     }
+
+
+    static async getBulkServicePaymentByAgentNameAndId(req, res) {
+        try {
+            // Extract the agentName and id from the request query parameters
+            const { agentName, transId } = req.query;
+    
+            // Check if either agentName or id is provided
+            if (!agentName && !transId ) {
+                return res.status(400).json({
+                    responseCode: 400,
+                    communicationStatus: "FAILED",
+                    responseDescription: "Either agent name or id is required."
+                });
+            }
+    
+            // Initialize query and parameters
+            let query = 'SELECT * FROM bulkservicepaymentresults WHERE';
+            let params = [];
+    
+            // Add conditions based on the provided parameters
+            if (agentName) {
+                query += ' agent_name = ?';
+                params.push(agentName);
+            }
+            if (transId) {
+                if (params.length > 0) {
+                    query += ' AND';
+                }
+                query += ' id = ?';
+                params.push(transId);
+            }
+    
+            // Use a parameterized query to prevent SQL injection
+            const [results] = await dbConnect.query(query, params);
+    
+            return res.status(200).json({
+                responseCode: 200,
+                communicationStatus: "SUCCESS",
+                responseDescription: "Transactions Logs",
+                data: results
+            });
+        } catch (error) {
+            return res.status(500).json({
+                responseCode: 500,
+                communicationStatus: "FAILED",
+                responseDescription: "Error while fetching data from Database.",
+                error: error.message,
+            });
+        }
+    }
+    
     
 //previous methode
     static async getTransactionsLogs(req, res) {

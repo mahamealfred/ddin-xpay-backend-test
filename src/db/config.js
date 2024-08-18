@@ -22,7 +22,7 @@ const db_port=process.env.DB_PORT;
       if (err) {
           console.log("Connection Error:",err);
       } else {
-        console.log("connected to Database.")
+        console.log("connected to Database.");
         connection.release();
         return connection;
    

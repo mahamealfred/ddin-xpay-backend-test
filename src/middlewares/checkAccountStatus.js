@@ -30,6 +30,7 @@ const CheckAccountStatus = async (req, res, next) => {
                      }); 
                }
                if(error.response.status===400){
+             
                    return res.status(400).json({
                        responseCode: 400,
                        communicationStatus:"FAILED",
