@@ -116,12 +116,12 @@ static async ddinBulkAirtimePayment(req, res) {
       "customValues": [
         {
           "internalName": "trans_id",
-          "fieldId": "118",
+          "fieldId": "85",
           "value": detail.trxId
         },
         {
           "internalName": "net_amount",
-          "fieldId": "119",
+          "fieldId": "87",
           "value": detail.amount
         }
       ]
@@ -176,6 +176,7 @@ static async ddinBulkAirtimePayment(req, res) {
         if (error.response.status === 401) {
           errorMessage = "Username and Password are required for authentication";
         } else if (error.response.status === 400) {
+          console.log("error:",error.response)
           errorMessage = "Invalid Username or Password";
         } else if (error.response.status === 404) {
           errorMessage = "Account Not Found";
