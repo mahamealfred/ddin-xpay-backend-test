@@ -194,7 +194,11 @@ static async ddinBulkAirtimePayment(req, res) {
   const finalResponse = {
     responseCode: 200,
     communicationStatus: "completed",
-    responseDescription: `Dear Customer, your bulk airtime transaction of ${totalAmount} Rwf has been successfully processed. Success Count: ${successCount}, Failure Count: ${failureCount}. Thank you for using our service!`,
+    responseDescription: `Dear Customer,
+
+Your bulk airtime transaction of ${totalAmount} Rwf has been successfully processed. Success Count: ${successCount}, Failure Count: ${failureCount}. Thank you for using our service!
+
+If you'd like to print a receipt, please navigate to "View All Transactions" and select the option to print the receipt.`,
     successCount: successCount,
     failureCount: failureCount,
     amount:totalAmount,
