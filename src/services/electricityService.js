@@ -25,17 +25,17 @@ const ddinElectricityPaymentServiceNewMethod = async (
         "customValues": [
         {
         "internalName" : "meterNumber",
-        "fieldId" : "86",
+        "fieldId" : "117",
         "value" :phoneNumber 
          },
         {
        "internalName" : "trans_id",
-       "fieldId" : "85",
+       "fieldId" : "118",
        "value" : trxId
         },
         {
           "internalName" : "net_amount",
-          "fieldId" : "87",
+          "fieldId" : "119",
           "value" : amount
         }
        ]

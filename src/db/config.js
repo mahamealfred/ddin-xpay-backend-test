@@ -14,8 +14,11 @@ const db_port=process.env.DB_PORT;
       host: "172.31.6.5",
       user:"alfred",
       port:"3306",
-      password:"DDIN@Norrsken#23",
-      database:"ddin_core_db"
+      password:" DDIN@Norrsken#23",
+      database:"core_test_db",
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0
       
     });
     dbConnect.getConnection(function (err, connection) {

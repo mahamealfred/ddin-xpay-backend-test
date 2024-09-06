@@ -28,12 +28,12 @@ class StartimeController {
       "description": description,
       "customValues":[{
       "internalName" : "trans_id",
-        "fieldId" : "85",
+        "fieldId" : "118",
         "value" : trxId
          },
          {
           "internalName" : "net_amount",
-          "fieldId" : "87",
+          "fieldId" : "119",
           "value" : amount
           }
         
@@ -56,7 +56,17 @@ class StartimeController {
       const response = await axios.request(config);
       if (response.status === 200){
        //call third part
-       await ddinStartimePaymentService(req, res, response, amount, description, trxId,phoneNumber,service_name,agent_name)
+       //await ddinStartimePaymentService(req, res, response, amount, description, trxId,phoneNumber,service_name,agent_name)
+       return res.status(200).json({
+        responseCode: 200,
+        communicationStatus: "SUCCESS",
+        responseDescription: description,
+        data:{
+          transactionId: response.data.id,
+          amount: amount,
+          description: description
+        }
+      });
       }
     } catch (error) {
       
