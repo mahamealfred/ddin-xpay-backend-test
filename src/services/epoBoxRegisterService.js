@@ -4,7 +4,7 @@ const axios = require("axios");
 
 dotenv.config();
 //new methode
-const createNewEpoBoxAccount = async (req, res, description,transactionId) => {
+const createNewEpoBoxAccount = async (req, res, description, transactionId) => {
     const {
         firstName,
         lastName,
@@ -19,9 +19,24 @@ const createNewEpoBoxAccount = async (req, res, description,transactionId) => {
         billI
 
     } = req.body;
-
-    const axios = require('axios');
-    let data = JSON.stringify({
+    let data
+    if (addressType === 1) {
+        data = JSON.stringify({
+            "firstName": firstName,
+            "lastName": lastName,
+            "email": email,
+            "addressType": addressType,
+            "postalCodeId": postalCodeId,
+            "address": address,
+            "channel": channel,
+            "nationalId": nationalId,
+            "virtualAddressName": virtualAddressName,
+            "applicationNumber": applicationNumber,
+            "billI": billI,
+            "amount": "some-amount"
+        });
+    }
+    data = JSON.stringify({
         "firstName": firstName,
         "lastName": lastName,
         "email": email,
@@ -30,10 +45,7 @@ const createNewEpoBoxAccount = async (req, res, description,transactionId) => {
         "address": address,
         "channel": channel,
         "nationalId": nationalId,
-        "virtualAddressName": virtualAddressName,
-        "applicationNumber": applicationNumber,
-        "billI": billI,
-        "amount": "some-amount"
+        "virtualAddressName": virtualAddressName
     });
 
     let config = {
@@ -54,9 +66,9 @@ const createNewEpoBoxAccount = async (req, res, description,transactionId) => {
                     responseCode: 201,
                     communicationStatus: "SUCCESS",
                     responseDescription: "Account Created Successful",
-                    data:{
-                        transactionId:transactionId,
-                        description:description,
+                    data: {
+                        transactionId: transactionId,
+                        description: description,
                         details: response.data
                     }
                 });
@@ -71,7 +83,7 @@ const createNewEpoBoxAccount = async (req, res, description,transactionId) => {
         })
         .catch((error) => {
             console.log(error)
-         if (error.response) {
+            if (error.response) {
                 res.status(error.response.status).json({
                     responseCode: 400,
                     responseDescription: error.message,
