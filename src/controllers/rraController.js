@@ -8,7 +8,7 @@ dotenv.config();
 class rraController{
 
   static async rraPayment(req, res) {
-    const { amount, trxId,transferTypeId, toMemberId, description, currencySymbol, phoneNumber,taxPayer,tin,agentCategory} = req.body;
+    const { amount, trxId,transactionPassword,transferTypeId, toMemberId, description, currencySymbol, phoneNumber,taxPayer,tin,agentCategory} = req.body;
     const authheader = req.headers.authorization;
     const authHeaderValue = authheader.split(' ')[1];
        const decodedValue = Buffer.from(authHeaderValue, 'base64').toString('ascii');
@@ -17,6 +17,7 @@ class rraController{
        let netAmount=findNetAmount(amount)
        
     let data = JSON.stringify({
+      "transactionPassword": `${transactionPassword}`,
       "toMemberId": `${toMemberId}`,
       "amount": `${amount}`,
       "transferTypeId": `${transferTypeId}`,
@@ -88,11 +89,28 @@ class rraController{
         });
       }
       if (error.response.status === 400) {
-        return res.status(400).json({
-          responseCode: 400,
-          communicationStatus: "FAILED",
-          responseDescription: "Invalid Username or Password"
-        });
+   
+        if(error.response.data.errorDetails === 'INVALID_TRANSACTION_PASSWORD'){
+          return res.status(400).json({
+            responseCode: 400,
+            communicationStatus: "FAILED",
+            responseDescription: "Invalid transaction password"
+          });
+        }
+        else if(error.response.data.errorDetails ==='BLOCKED_TRANSACTION_PASSWORD'){
+          return res.status(400).json({
+            responseCode: 400,
+            communicationStatus: "FAILED",
+            responseDescription: "Blocked transaction password"
+          });
+        }else{
+          return res.status(400).json({
+            responseCode: 400,
+            communicationStatus: "FAILED",
+            responseDescription: "No possible transfer types"
+          });
+        }
+       
       }
       if (error.response.status === 404) {
         return res.status(404).json({
