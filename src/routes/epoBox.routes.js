@@ -9,7 +9,7 @@ router.get('/check-account/:mobileNumber',epoBoxController.checkEpoBoxAccount);
 
 router.get('/postal-code',epoBoxController.getAllPostCode);
 
-router.post('/virtual-address/register',CheckAccountStatus,epoBoxController.virtualAddressRegister);
+router.post('/virtual-address/register',CheckAccountStatus,epoBoxController.createEpoBoxAccount);
 
 
 module.exports=router

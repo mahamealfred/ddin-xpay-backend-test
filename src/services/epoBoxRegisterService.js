@@ -1,5 +1,7 @@
 const dotenv = require("dotenv")
 const axios = require("axios");
+const onBoardClient = require("./onBoardClientService");
+const Chargeback = require("../Utils/chargback");
 
 
 dotenv.config();
@@ -12,11 +14,7 @@ const createNewEpoBoxAccount = async (req, res, description, transactionId) => {
         addressType,
         postalCodeId,
         address,
-        channel,
-        nationalId,
-        virtualAddressName,
-        applicationNumber,
-        billI
+        nationalId
 
     } = req.body;
     let data
@@ -28,11 +26,11 @@ const createNewEpoBoxAccount = async (req, res, description, transactionId) => {
             "addressType": addressType,
             "postalCodeId": postalCodeId,
             "address": address,
-            "channel": channel,
+            "channel": "Irembo",
             "nationalId": nationalId,
-            "virtualAddressName": virtualAddressName,
-            "applicationNumber": applicationNumber,
-            "billI": billI,
+            "virtualAddressName": "+250780123456",
+            "applicationNumber": "dummy-app-number",
+            "billI": "dummy-bill-id",
             "amount": "some-amount"
         });
     }
@@ -43,9 +41,9 @@ const createNewEpoBoxAccount = async (req, res, description, transactionId) => {
         "addressType": addressType,
         "postalCodeId": postalCodeId,
         "address": address,
-        "channel": channel,
+        "channel": "Irembo",
         "nationalId": nationalId,
-        "virtualAddressName": virtualAddressName
+        "virtualAddressName": "+250780123456",
     });
 
     let config = {
@@ -62,6 +60,7 @@ const createNewEpoBoxAccount = async (req, res, description, transactionId) => {
         .then((response) => {
             // console.log(JSON.stringify(response.data));
             if (response.data.status == true) {
+                onBoardClient(firstName, email, addressType, address, nationalId)
                 return res.status(201).json({
                     responseCode: 201,
                     communicationStatus: "SUCCESS",
@@ -73,6 +72,7 @@ const createNewEpoBoxAccount = async (req, res, description, transactionId) => {
                     }
                 });
             } else {
+                Chargeback(transactionId)
                 return res.status(400).json({
                     responseCode: 400,
                     communicationStatus: "FAILED",
@@ -82,11 +82,12 @@ const createNewEpoBoxAccount = async (req, res, description, transactionId) => {
 
         })
         .catch((error) => {
-            console.log(error)
+
             if (error.response) {
+                Chargeback(transactionId)
                 res.status(error.response.status).json({
                     responseCode: 400,
-                    responseDescription: error.message,
+                    responseDescription: error.response.data.message[0].constraints,
                     data: error.response.data,
                 });
             } else {

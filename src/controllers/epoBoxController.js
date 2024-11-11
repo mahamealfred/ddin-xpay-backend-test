@@ -1,49 +1,8 @@
 const dotenv = require("dotenv")
 const axios = require("axios");
-const makeEpoBoxPayment = require("../services/epoBoxService");
+const createNewEpoBoxAccount = require("../services/epoBoxRegisterService");
 
 dotenv.config();
-
-
-function generateUsername(firstName, lastName) {
-    // Convert names to lowercase and concatenate
-    let username = `${firstName.toLowerCase()}`;
-
-    // If the username is 12 characters or longer, truncate it
-    if (username.length >= 12) {
-        username = username.substring(0, 10); // Keep it under 12 characters
-    }
-
-    return username;
-}
-
-function generateStrongPassword(length = 12) {
-    // Define the characters to include in the password
-    const upperCase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const lowerCase = 'abcdefghijklmnopqrstuvwxyz';
-    const numbers = '0123456789';
-    const specialCharacters = '!@#$%^&*()_+[]{}|;:,.<>?';
-
-    // Combine all characters
-    const allCharacters = upperCase + lowerCase + numbers + specialCharacters;
-
-    // Ensure the password contains at least one character from each category
-    const passwordArray = [
-        upperCase[Math.floor(Math.random() * upperCase.length)],
-        lowerCase[Math.floor(Math.random() * lowerCase.length)],
-        numbers[Math.floor(Math.random() * numbers.length)],
-        specialCharacters[Math.floor(Math.random() * specialCharacters.length)]
-    ];
-
-    // Generate the remaining characters randomly
-    for (let i = passwordArray.length; i < length; i++) {
-        passwordArray.push(allCharacters[Math.floor(Math.random() * allCharacters.length)]);
-    }
-
-    // Shuffle the password array to ensure randomness
-    const password = passwordArray.sort(() => Math.random() - 0.5).join('');
-    return password;
-}
 
 class epoBoxController {
 
@@ -86,74 +45,7 @@ class epoBoxController {
             }
         }
     }
-    static async virtualAddressRegister(req, res) {
-        const {
-            firstName,
-            lastName,
-            email,
-            addressType,
-            // postalCodeI,
-            address,
-            // channel,
-            nationalId,
-            // virtualAddressName,
-            // applicationNumber,
-            // billI,
-            // amount,
-            toMemberId,
-            transferTypeId,
-            currencySymbol, 
-            description
-
-        } = req.body;
-        const username = generateUsername(firstName, lastName);
-        const password = generateStrongPassword(12);
    
-        // const axios = require('axios');
-        let data = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mem="http://members.webservices.cyclos.strohalm.nl/">\r\n   <soapenv:Header/>\r\n   <soapenv:Body>\r\n      <mem:registerMember>\r\n         <!--Optional:-->\r\n         <params>\r\n            <!--Optional:-->\r\n            <groupId>24</groupId>\r\n            <!--Optional:-->\r\n            <username>${username}</username>\r\n            <!--Optional:-->\r\n            <name>MPost User 2</name>\r\n            <!--Optional:-->\r\n            <email>${email}</email>\r\n            <!--Optional:-->\r\n            <loginPassword>${password}</loginPassword>\r\n            <fields>\r\n               <!--Optional:-->\r\n               <internalName>addressType</internalName>\r\n               <!--Optional:-->\r\n               <fieldId>123</fieldId>\r\n               <!--Optional:-->\r\n               <value>${addressType}</value>\r\n               <!--Optional:-->\r\n               <internalName>address</internalName>\r\n               <!--Optional:-->\r\n               <fieldId>124</fieldId>\r\n               <!--Optional:-->\r\n               <value>${address}</value>\r\n               <!--Optional:-->\r\n               <internalName>nationalId</internalName>\r\n               <!--Optional:-->\r\n               <fieldId>125</fieldId>\r\n               <!--Optional:-->\r\n               <value>${nationalId}</value>\r\n            </fields>\r\n         </params>\r\n      </mem:registerMember>\r\n   </soapenv:Body>\r\n</soapenv:Envelope>`;
-
-        let config = {
-            method: 'post',
-            maxBodyLength: Infinity,
-            url: 'https://test.ddin.rw/coretest/services/members',
-            headers: {
-                'Content-Type': 'application/xml'
-            },
-            data: data
-        };
-
-        await axios.request(config)
-            .then((response) => {
-                //   console.log(JSON.stringify(response.data));
-                //   return res.status(200).json({
-                //     responseCode: 200,
-                //     communicationStatus: "SUCCESS",
-                //     responseDescription: "Account Created Successfully",
-                //     data:JSON.stringify(response.data)
-                // });
-                //call API for payment
-            makeEpoBoxPayment(req,res,toMemberId, transferTypeId, currencySymbol, description)    
-            })
-            .catch((error) => {
-                // Extract relevant information from the error
-                const errorResponse = error.response || {};
-                const errorMessage = errorResponse.data || error.message || "An error occurred";
-                const errorStatus = errorResponse.status || 500;
-
-                return res.status(errorStatus).json({
-                    responseCode: errorStatus,
-                    communicationStatus: "FAILED",
-                    error: {
-                        message: errorMessage,
-                        details: errorResponse.data || null // Provide additional error details if available
-                    }
-                });
-            });
-
-
-
-    }
-
 
     static async getAllPostCode(req, res) {
         try {
@@ -191,6 +83,88 @@ class epoBoxController {
                     error: "Dear client, we're unable to complete your transaction right now. Please try again later."
                 });
             }
+        }
+    }
+
+    static async createEpoBoxAccount(req, res) {
+
+        const {
+            toMemberId,
+            transferTypeId,
+            currencySymbol,
+            description,
+            firstName,
+            lastName,
+            email,
+            addressType,
+            address,
+            nationalId } = req.body
+
+        const authheader = req.headers.authorization;
+
+        let data = JSON.stringify({
+            "toMemberId": `${toMemberId}`,
+            "amount": "8000",
+            "transferTypeId": `${transferTypeId}`,
+            "currencySymbol": currencySymbol,
+            "description": description
+        });
+
+        let config = {
+            method: 'post',
+            maxBodyLength: Infinity,
+            url: process.env.CORE_URL + '/rest/payments/confirmMemberPayment',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `${authheader}`
+            },
+            data: data
+        };
+
+        try {
+            const response = await axios.request(config)
+            if (response.status === 200) {
+                let transactionId = response.data.id
+
+                //   return res.status(200).json({
+                //     responseCode: 200,
+                //     communicationStatus: "SUCCESS",
+                //     responseDescription: description,
+                //     data: {
+                //       transactionId: response.data.id,
+                //       description: description,
+                //     }
+                //   });
+                //Call EPOBOX ENDPOINT FOR REGISTRATION
+                createNewEpoBoxAccount(req, res, description, transactionId)
+            }
+        } catch (error) {
+            if (error.response.status === 401) {
+                return res.status(401).json({
+                    responseCode: 401,
+                    communicationStatus: "FAILED",
+                    responseDescription: "Username and Password are required for authentication"
+                });
+            }
+            if (error.response.status === 400) {
+                return res.status(400).json({
+                    responseCode: 400,
+                    communicationStatus: "FAILED",
+                    responseDescription: "Invalid Username or Password"
+                });
+            }
+            if (error.response.status === 404) {
+                return res.status(404).json({
+                    responseCode: 404,
+                    communicationStatus: "FAILED",
+                    responseDescription: "Account Not Found"
+                });
+            }
+            return res.status(500).json({
+                responseCode: 500,
+                communicationStatus: "FAILED",
+                error: "Dear client, Your transaction has been processed; please get in touch with DDIN Support for follow-up"
+            });
         }
     }
 }
