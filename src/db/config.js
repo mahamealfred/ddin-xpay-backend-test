@@ -11,11 +11,11 @@ const db_port=process.env.DB_PORT;
     const dbConnect=  mysql.createPool({
       connectionLimit: 10,
       connectionTimeout: 30000,
-      host: host,
-      user:username,
-      port:db_port,
-      password:password,
-      database:db_name,
+      host: "172.31.6.5",
+      user:"alfred",
+      port:"3306",
+      password:"DDIN@Norrsken#23",
+      database:"core_test_db",
       waitForConnections: true,
       connectionLimit: 10,
       queueLimit: 0

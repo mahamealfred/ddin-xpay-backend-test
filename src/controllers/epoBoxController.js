@@ -124,8 +124,7 @@ class epoBoxController {
         try {
             const response = await axios.request(config)
             if (response.status === 200) {
-                let transactionId = response.data.id
-
+                let transactionId = response.data.id;
                 //   return res.status(200).json({
                 //     responseCode: 200,
                 //     communicationStatus: "SUCCESS",

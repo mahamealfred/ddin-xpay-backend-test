@@ -26,9 +26,9 @@ const createNewEpoBoxAccount = async (req, res, description, transactionId) => {
             "addressType": addressType,
             "postalCodeId": postalCodeId,
             "address": address,
-            "channel": "Irembo",
+            "channel": "DDIN",
             "nationalId": nationalId,
-            "virtualAddressName": "+250780123456",
+            "virtualAddressName": address,
             "applicationNumber": "dummy-app-number",
             "billI": "dummy-bill-id",
             "amount": "some-amount"
@@ -60,7 +60,7 @@ const createNewEpoBoxAccount = async (req, res, description, transactionId) => {
         .then((response) => {
             // console.log(JSON.stringify(response.data));
             if (response.data.status == true) {
-                onBoardClient(firstName, email, addressType, address, nationalId)
+                onBoardClient(firstName,lastName, email, addressType, address, nationalId)
                 return res.status(201).json({
                     responseCode: 201,
                     communicationStatus: "SUCCESS",
